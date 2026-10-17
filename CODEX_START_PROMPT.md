@@ -1,7 +1,34 @@
 # Paste this into Codex
 
-You are continuing an existing browser game project named Food Fight. Read `README.md`, `REQUIREMENTS.md`, and `source/Food_Fight_Classic_Anonymous_Admin.html` before changing anything. The existing primary HTML file is the working baseline; preserve its classic UI, Endless Run, 12 puzzle levels, shop, and touch controls. `source/Food_Fight_Classic_Colour.html` is a fallback reference.
+You are continuing an existing browser game project named Food Fight.
 
-The user wants Ship.page static hosting and a simple Firebase-backed account/cloud data system, **not Supabase**. Firebase is NOT configured yet; do not invent Firebase keys or claim integration is complete. First audit the game, describe the smallest next implementation step, and create a clean development copy without overwriting original source files. Prefer incremental, testable changes. Explain any required Firebase Console steps in plain, short instructions. Prioritize user privacy and secure server-enforced admin/economy operations. Note the known discrepancies in README and fix them as appropriate. Do not place secrets in the client.
+Before changing anything, read:
+- `README.md`
+- `REQUIREMENTS.md`
+- `AGENTS.md`
+- `source/Food_Fight_Classic_Anonymous_Admin.html`
 
-Please start by auditing the primary source and proposing the first code change; if you can implement an offline-safe preparation step immediately, do so and provide a testable output.
+The recovered primary HTML is the working baseline. Preserve its classic UI, Endless Run, 12 puzzle levels, shop, touch controls and overall game feel. `source/Food_Fight_Classic_Colour.html` is a fallback reference and must also remain untouched.
+
+## Architecture decision
+The current project uses:
+- Ship.page static hosting
+- HTML/CSS/JavaScript
+- browser/iPad local storage
+- no Supabase
+- no Firebase
+- no external backend
+
+Do not add or configure a backend unless the user explicitly changes this decision. Do not invent API keys, cloud services or server infrastructure.
+
+## First task
+1. Audit the primary recovered HTML without modifying it.
+2. Summarize the current game structure and any obvious bugs or fragile areas.
+3. Create a development copy named `Food_Fight_Development.html` from the primary recovered source.
+4. Make only the smallest useful, testable improvement first.
+5. Keep all changes compatible with iPad/mobile and desktop.
+6. Preserve a simple single-file deployment path for Ship.page.
+
+Treat login/admin/account features as local prototypes only. Do not claim client-side passwords, localStorage or browser-only permissions are secure production authentication. If a requested feature genuinely requires a backend, explain that rather than faking a global or secure implementation.
+
+Work incrementally, test the affected behavior, and clearly state which file changed and how to verify it.
