@@ -1,33 +1,39 @@
-# Food Fight — Codex handover (17 October 2026)
+# Food Fight — Codex project
 
 ## Start here
-This archive contains two **recovered original HTML files** and a product/development brief. The most advanced recovered source is `source/Food_Fight_Classic_Anonymous_Admin.html` (39,196 bytes). The earlier `source/Food_Fight_Classic_Colour.html` (34,528 bytes) is included as a fallback. These files have not been rewritten for this handover.
+Food Fight is a standalone browser game for iPad/mobile and desktop. The recovered project is intentionally simple: HTML, CSS and JavaScript with no build step required.
 
-Open the primary HTML file in a browser to inspect the current prototype. The project is a standalone canvas game with inline CSS and JavaScript; no build step is required. The files are not evidence of a working backend.
+The primary recovered source is `source/Food_Fight_Classic_Anonymous_Admin.html`. The earlier `source/Food_Fight_Classic_Colour.html` is retained as a fallback reference. Do not overwrite either recovered original when beginning development.
 
-Read `REQUIREMENTS.md` and `CODEX_START_PROMPT.md` before modifying code.
+Read `AGENTS.md`, `REQUIREMENTS.md`, and `CODEX_START_PROMPT.md` before modifying code.
 
-## Confirmed decisions
-- Product: Food Fight, a browser game suitable for desktop, iPad and mobile.
-- Host: Ship.page (user has a free plan; static HTML/CSS/JS hosting).
-- Backend: **not Supabase**. Firebase was proposed and the user agreed to start its setup, but **no Firebase project configuration or completed integration has been provided in this conversation**.
-- Preserve the simple/classic home-screen style and existing gameplay.
-- Work incrementally, do the coding for the user where possible, and explain setup in small steps.
+## Final architecture decision
+- Host: Ship.page free static hosting.
+- Backend: **none for the current phase**.
+- Do **not** add Supabase or Firebase unless the user explicitly changes this decision later.
+- Persistence: browser/iPad local storage only for now.
+- Prefer a single deployable HTML file unless there is a strong reason to split the project.
 
-## Current implementation (verified by reading the primary HTML)
-- Endless Run and Puzzle Mode; 12 puzzle levels.
-- Launcher/food projectile shop, coin balance, unlocks, equipped items.
-- Browser-local save in `localStorage` key `bulletDashSave`.
-- Anonymous play button and browser-local toggle stored under `foodFightAnonymousPlayEnabled`.
-- Prototype admin login; the password is hardcoded in client-side source and **must not be used as production authentication**.
-- No Firebase SDK, server-side authorization, real cloud accounts, shared leaderboards or cross-device synchronization in the recovered primary file.
+## Current implementation
+- Endless Run and Puzzle Mode with 12 puzzle levels.
+- Launcher/food projectile shop, coins, unlocks and equipped items.
+- Pointer/touch controls suitable for iPad/mobile and desktop.
+- Browser-local save using `localStorage`.
+- Anonymous play and a browser-local anonymous-play toggle.
+- Prototype admin login exists in the recovered HTML.
 
-## Important discrepancies to fix
-- Current puzzle code gives 10 coins only on the **first** clear; the agreed requirement is coins on **every successful clear**, including replay.
-- Current guest progress is stored locally; the agreed requirement is **no persistent anonymous progress**.
-- Current anonymous-play toggle only applies to one browser; agreed requirement is globally enforced and effective for active guest sessions.
-- Current admin prototype has a client-side password; replace with Firebase Authentication and server-enforced admin permissions before public deployment.
-- Endless Run rewards should be granted at run end based on final score, but exact conversion formula is still to be confirmed.
+## Important limitations
+Because the current project has no backend, features that require shared server data cannot be truly global or secure. This includes real multi-device accounts, global leaderboards, globally enforced admin controls, secure password recovery, shared friend systems and tamper-resistant economy validation.
 
-## Security and deployment
-Never put service-account private keys, admin passwords or other server secrets into static HTML or the repo. Firebase web config is not a secret, but use strict Firestore Security Rules, authenticated access, and trusted server-side validation for economy/leaderboards. Treat all browser-generated scores and coin claims as untrusted. Do not claim tamper-proof scoring without a defensible validation approach. Protect children’s privacy: public usernames only; do not expose names/emails. Test on local browser and on Ship.page after deployment.
+Treat the current login/admin screens as local prototypes only. Never claim a hardcoded client-side password is secure authentication. Do not add secrets, private keys or real passwords to this repository.
+
+## Development rules
+- Preserve the classic Food Fight look and existing gameplay unless a task specifically changes them.
+- Keep iPad touch controls working.
+- Work incrementally and keep each change testable.
+- Create a development copy before major changes; preserve the recovered originals.
+- Prefer local-only implementations that work on Ship.page without external services.
+- If a requested feature cannot be securely implemented without a backend, explain that clearly and build only a safe local prototype unless the user changes the architecture decision.
+
+## Recommended first Codex task
+Audit the primary source without changing it. Create a development copy named `Food_Fight_Development.html`, verify that the existing game still runs, then make one small testable improvement at a time.
