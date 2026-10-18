@@ -21,6 +21,7 @@ h1{font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:1.5px;margin-bo
 #toast{position:fixed;z-index:30;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:linear-gradient(135deg,#fff0a4,#ffc94a);color:#241900;border-radius:12px;padding:12px 16px;font-weight:850;transition:.2s;max-width:90vw;text-align:center}#toast.show{opacity:1;transform:translate(-50%,0)}
 #puzzleFooter{position:fixed;z-index:4;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:none;gap:8px;align-items:center;pointer-events:none;white-space:nowrap}#puzzleFooter .hudBox{font-size:13px}#puzzleFooter button{pointer-events:auto}
 @media(max-width:520px){.menuButtons{grid-template-columns:1fr}.panel{padding:20px 16px}.itemCard{min-height:130px}#hud{left:8px;right:8px}#puzzleFooter{bottom:max(8px,env(safe-area-inset-bottom))}}
+.adminForm{margin-top:20px;padding-top:18px;border-top:1px solid #536987;text-align:left}.adminForm label{display:block;margin:10px 0 5px}.adminForm input,.adminForm select{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid #536987;background:#111722;color:#fff;user-select:text;-webkit-user-select:text}.adminForm button{margin-top:12px;min-height:44px}.adminList{padding-left:20px;color:var(--muted);overflow-wrap:anywhere}.adminList li{margin:8px 0}.formStatus{min-height:24px;margin:10px 0;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -29,15 +30,29 @@ h1{font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:1.5px;margin-bo
 <div id="banner">GET READY</div>
 <div id="puzzleFooter"><div class="hudBox" id="shotsBox">Shots: 3</div><div class="hudBox" id="levelBox">LEVEL 1</div><button id="resetLevelButton">RESET</button></div>
 
-<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
+<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
 
-<section class="screen" id="shopScreen"><div class="panel"><h2>FOOD FIGHT SHOP</h2><p class="sub">Mix and match any launcher with any food. Each item has its own look and personality.</p><div class="row"><div class="stat" id="shopCoins">Coins: 0</div><button id="shopBack">BACK</button></div><h3 style="margin-top:18px;text-align:left">Choose your launcher</h3><div class="gridCards" id="rifleCards"></div><h3 style="text-align:left">Choose your food</h3><div class="gridCards" id="bulletCards"></div></div></section>
+<section class="screen" id="shopScreen"><div class="panel"><h2>FOOD FIGHT SHOP</h2><p class="sub">Mix and match any launcher with any food. Each item has its own look and personality.</p><div class="row"><div class="stat" id="shopCoins">Coins: 0</div><button id="shopBack">BACK</button></div><form id="redeemForm" class="adminForm"><label for="redeemCode">Reward code</label><input id="redeemCode" maxlength="32" autocapitalize="characters" spellcheck="false" required><button class="gold" type="submit">REDEEM CODE</button><p id="redeemStatus" class="formStatus" role="status"></p></form><h3 style="margin-top:18px;text-align:left">Choose your launcher</h3><div class="gridCards" id="rifleCards"></div><h3 style="text-align:left">Choose your food</h3><div class="gridCards" id="bulletCards"></div></div></section>
 
 <section class="screen" id="levelsScreen"><div class="panel"><h2>PUZZLE LEVELS</h2><p class="sub">Clear each mission to unlock the next. Every level has limited shots, ricochets and a new setup.</p><div class="row"><div class="stat" id="levelProgress">Unlocked: 1 / 12</div><button id="levelsBack">BACK</button></div><div class="gridCards" id="levelCards"></div></div></section>
 
 <section class="screen" id="resultScreen"><div class="panel"><h2 id="resultTitle">LEVEL CLEARED</h2><p class="sub" id="resultMessage">Mission complete.</p><div class="stats"><div class="stat" id="resultScore">Score: 0</div><div class="stat" id="resultCoins">Coins earned: 0</div></div><div class="row"><button id="resultHome">HOME</button><button id="retryButton">RETRY</button><button class="primary" id="nextButton">NEXT LEVEL</button></div></div></section>
 
-<section class="screen" id="adminScreen"><div class="panel"><h2>FOOD FIGHT ADMIN</h2><p class="sub">Prototype controls for local testing only.</p><div id="adminLoginArea"><label for="adminPasswordInput" style="display:block;text-align:left;margin:12px 0 6px">Admin password</label><input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter admin password" style="width:100%;padding:12px;border-radius:10px;border:1px solid #536987;background:#111722;color:#fff"><div class="row" style="margin-top:12px"><button class="primary" id="adminLoginButton">LOG IN</button><button id="adminBackButton">BACK</button></div><p class="smallNote">RGE123 is a temporary prototype password and is visible in the HTML source. Do not use this for a public production admin account.</p></div><div id="adminControls" class="hidden"><div class="stat" id="anonymousModeStatus" style="margin:12px 0">Anonymous play: Enabled</div><div class="row"><button class="gold" id="toggleAnonymousButton">DISABLE ANONYMOUS PLAY</button><button id="adminLogoutButton">LOG OUT</button><button id="adminHomeButton">HOME</button></div><p class="smallNote">This setting applies only to this browser. These local prototype controls are not secure authentication or a global setting.</p></div></div></section>
+<section class="screen" id="adminScreen"><div class="panel"><h2>FOOD FIGHT ADMIN</h2><p class="sub">Prototype controls for local testing only.</p><div id="adminLoginArea"><label for="adminPasswordInput" style="display:block;text-align:left;margin:12px 0 6px">Admin password</label><input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter admin password" style="width:100%;padding:12px;border-radius:10px;border:1px solid #536987;background:#111722;color:#fff"><div class="row" style="margin-top:12px"><button class="primary" id="adminLoginButton">LOG IN</button><button id="adminBackButton">BACK</button></div><p class="smallNote">RGE123 is a temporary prototype password and is visible in the HTML source. Do not use this for a public production admin account.</p></div><div id="adminControls" class="hidden"><div class="stat" id="anonymousModeStatus" style="margin:12px 0">Anonymous play: Enabled</div><div class="row"><button class="gold" id="toggleAnonymousButton">DISABLE ANONYMOUS PLAY</button><button id="adminLogoutButton">LOG OUT</button><button id="adminHomeButton">HOME</button></div><form id="itemForm" class="adminForm">
+<h3>Add a store item</h3>
+<label for="itemType">Item type</label><select id="itemType"><option value="blaster">Blaster / launcher</option><option value="food">Food projectile</option></select>
+<label for="itemName">Item name</label><input id="itemName" maxlength="48" required>
+<label for="itemEmoji">Emoji or short symbol</label><input id="itemEmoji" maxlength="16" placeholder="🍿" required>
+<label for="itemCost">Price in coins (0 = free)</label><input id="itemCost" type="number" inputmode="numeric" min="0" max="1000000" step="1" value="100" required>
+<button class="primary" type="submit">ADD TO STORE</button><p id="itemStatus" class="formStatus" role="status"></p>
+</form><ul id="customItemList" class="adminList"></ul>
+<form id="codeForm" class="adminForm"><h3>Add a reward code</h3><p class="smallNote">Codes grant coins or an item once per local save. They only exist in this browser/site. Refresh other open tabs after adding content.</p>
+<label for="newCode">Code (letters, numbers, - or _)</label><input id="newCode" maxlength="32" autocapitalize="characters" spellcheck="false" required>
+<label for="codeReward">Reward</label><select id="codeReward"></select>
+<label for="codeCoins">Coins (only for coin rewards)</label><input id="codeCoins" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="100" required>
+<button class="gold" type="submit">ADD CODE</button><p id="codeStatus" class="formStatus" role="status"></p>
+</form><ul id="codeList" class="adminList"></ul>
+<p class="smallNote">This setting applies only to this browser. These local prototype controls are not secure authentication or a global setting.</p></div></div></section>
 
 <div id="toast"></div>
 <script>
@@ -76,8 +91,86 @@ const bulletSkins=[
  {id:'cosmic-pizza',name:'Cosmic Pizza',cost:1000,a:'#b78bff',b:'#6c3cc4',glow:'#d2aaff',trail:'#e6d1ff',emoji:'🌮'}
 ];
 const defaults={highScore:0,coins:0,unlockedR:['burger-cannon'],unlockedB:['burger'],equippedR:'burger-cannon',equippedB:'burger',unlockedLevel:1,clearedLevels:[],puzzleBest:{},endlessMilestone:0};
+const ADMIN_DATA_KEY='foodFightLocalCatalogueV1';
+const adminData=loadAdminData();
+for(const item of adminData.items)(item.type==='blaster'?rifleSkins:bulletSkins).push(item);
 let save=loadSave();
-function loadSave(){try{const x=JSON.parse(localStorage.getItem('bulletDashSave')||'{}');const merged={...defaults,...x};merged.highScore=Number.isFinite(Number(merged.highScore))?Math.max(0,Number(merged.highScore)):0;merged.coins=Number.isFinite(Number(merged.coins))?Math.max(0,Math.floor(Number(merged.coins))):0;merged.unlockedR=Array.isArray(merged.unlockedR)?merged.unlockedR.filter(id=>rifleSkins.some(s=>s.id===id)):['burger-cannon'];merged.unlockedB=Array.isArray(merged.unlockedB)?merged.unlockedB.filter(id=>bulletSkins.some(s=>s.id===id)):['burger'];merged.clearedLevels=Array.isArray(merged.clearedLevels)?merged.clearedLevels.filter(n=>Number.isInteger(n)&&n>=1&&n<=12):[];merged.puzzleBest=merged.puzzleBest&&typeof merged.puzzleBest==='object'?merged.puzzleBest:{};if(!merged.unlockedR.includes('burger-cannon'))merged.unlockedR.push('burger-cannon');if(!merged.unlockedB.includes('burger'))merged.unlockedB.push('burger');if(!merged.unlockedR.includes(merged.equippedR))merged.equippedR='burger-cannon';if(!merged.unlockedB.includes(merged.equippedB))merged.equippedB='burger';merged.endlessMilestone=Number.isFinite(Number(merged.endlessMilestone))?Math.max(0,Math.floor(Number(merged.endlessMilestone))):0;merged.unlockedLevel=Math.max(1,Math.min(12,Math.floor(Number(merged.unlockedLevel)||1)));return merged}catch(e){return {...defaults,unlockedR:['burger-cannon'],unlockedB:['burger'],clearedLevels:[],puzzleBest:{}}}}
+function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function validAmount(n,min=0){return Number.isSafeInteger(n)&&n>=min&&n<=1000000}
+function loadAdminData(){
+ const result={items:[],codes:[]};
+ try{
+  const raw=JSON.parse(localStorage.getItem(ADMIN_DATA_KEY)||'{}');
+  const ids=new Set([...rifleSkins,...bulletSkins].map(x=>x.id));
+  if(Array.isArray(raw.items))for(const x of raw.items){
+   if(!x||!['blaster','food'].includes(x.type)||typeof x.id!=='string'||!/^local-[a-z0-9-]+$/.test(x.id)||ids.has(x.id)||typeof x.name!=='string'||!x.name.trim()||x.name.length>48||typeof x.emoji!=='string'||!x.emoji.trim()||x.emoji.length>16||!validAmount(x.cost))continue;
+   ids.add(x.id);result.items.push(makeItem(x.id,x.type,x.name,x.emoji,x.cost));
+  }
+  const codes=new Set();
+  if(Array.isArray(raw.codes))for(const x of raw.codes){
+   if(!x||typeof x.code!=='string'||! /^[A-Z0-9_-]{1,32}$/.test(x.code)||codes.has(x.code))continue;
+   const item=[...rifleSkins,...bulletSkins,...result.items].find(i=>i.id===x.itemId);
+   if(x.kind==='coins'&&validAmount(x.coins,1))result.codes.push({code:x.code,kind:'coins',coins:x.coins});
+   else if(x.kind==='item'&&item)result.codes.push({code:x.code,kind:'item',itemId:item.id});
+   else continue;
+   codes.add(x.code);
+  }
+ }catch(e){}
+ return result;
+}
+function makeItem(id,type,name,emoji,cost){return {id,type,name,emoji,cost,a:'#52d8ff',b:'#168bd8',c:'#b8f2ff',glow:'#ffc45c',trail:'#ffd27b'}}
+function writeLocal(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
+function rewardText(code){const item=[...rifleSkins,...bulletSkins].find(i=>i.id===code.itemId);return code.kind==='coins'?code.coins+' coins':item?.name||'Unknown item'}
+function drawAdminCatalogue(){
+ const select=$('codeReward'),previous=select.value;select.replaceChildren(new Option('Coins','coins'));
+ for(const [type,items] of [['Blaster',rifleSkins],['Food',bulletSkins]])for(const item of items)select.add(new Option(type+': '+item.name,item.id));
+ if([...select.options].some(o=>o.value===previous))select.value=previous;
+ $('codeCoins').disabled=select.value!=='coins';
+ for(const [id,rows] of [['customItemList',adminData.items.map(i=>(i.type==='blaster'?'Blaster: ':'Food: ')+i.name+' — '+i.cost+' coins')],['codeList',adminData.codes.map(c=>c.code+' — '+rewardText(c))]]){
+  $(id).replaceChildren();for(const text of rows){const li=document.createElement('li');li.textContent=text;$(id).appendChild(li)}
+ }
+}
+$('codeReward').addEventListener('change',()=>{$('codeCoins').disabled=$('codeReward').value!=='coins'});
+$('itemForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!adminAuthenticated)return;
+ const name=$('itemName').value.trim(),emoji=$('itemEmoji').value.trim(),cost=Number($('itemCost').value),type=$('itemType').value;
+ if(!name||name.length>48||!emoji||emoji.length>16||!validAmount(cost)||!['blaster','food'].includes(type)){$('itemStatus').textContent='Enter a name, symbol and a whole-number price from 0 to 1,000,000.';return}
+ if([...rifleSkins,...bulletSkins].some(i=>i.name.toLowerCase()===name.toLowerCase())){$('itemStatus').textContent='An item with this name already exists.';return}
+ const item=makeItem('local-'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)),type,name,emoji,cost);
+ if(!writeLocal(ADMIN_DATA_KEY,{...adminData,items:[...adminData.items,item]})){$('itemStatus').textContent='Could not save. Browser storage may be blocked or full. Nothing was added.';return}
+ adminData.items.push(item);(type==='blaster'?rifleSkins:bulletSkins).push(item);
+ $('itemForm').reset();$('itemStatus').textContent=name+' added to the local store.';drawAdminCatalogue();
+});
+$('codeForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!adminAuthenticated)return;
+ const code=$('newCode').value.trim().toUpperCase(),reward=$('codeReward').value,coins=Number($('codeCoins').value);
+ if(!/^[A-Z0-9_-]{1,32}$/.test(code)){$('codeStatus').textContent='Use 1–32 letters, numbers, hyphens or underscores.';return}
+ if(adminData.codes.some(c=>c.code===code)){$('codeStatus').textContent='This code already exists.';return}
+ if(reward==='coins'?!validAmount(coins,1):![...rifleSkins,...bulletSkins].some(i=>i.id===reward)){$('codeStatus').textContent='Choose a valid reward (1–1,000,000 for coins).';return}
+ const entry=reward==='coins'?{code,kind:'coins',coins}:{code,kind:'item',itemId:reward};
+ if(!writeLocal(ADMIN_DATA_KEY,{...adminData,codes:[...adminData.codes,entry]})){$('codeStatus').textContent='Could not save this code. Browser storage may be blocked or full.';return}
+ adminData.codes.push(entry);$('codeForm').reset();$('codeStatus').textContent=code+' added. Redeem it in the shop.';drawAdminCatalogue();
+});
+$('redeemForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!guestActive||!anonymousPlayEnabled())return;
+ const code=$('redeemCode').value.trim().toUpperCase(),entry=adminData.codes.find(c=>c.code===code);
+ const status=$('redeemStatus');
+ if(!entry){status.textContent='Code not found in this browser.';return}
+ if(save.redeemedCodes.includes(code)){status.textContent='This code has already been redeemed.';return}
+ const next={...save,unlockedR:[...save.unlockedR],unlockedB:[...save.unlockedB],redeemedCodes:[...save.redeemedCodes,code]};
+ if(entry.kind==='coins'){
+  if(!Number.isSafeInteger(next.coins+entry.coins)){status.textContent='Coin balance is too large for this reward.';return}
+  next.coins+=entry.coins;
+ }else{
+  const items=rifleSkins.some(i=>i.id===entry.itemId)?next.unlockedR:next.unlockedB;
+  if(items.includes(entry.itemId)){status.textContent='You already own this item. Code not used.';return}
+  items.push(entry.itemId);
+ }
+ if(!writeLocal('bulletDashSave',next)){status.textContent='Could not save the reward. Code not used; please enable browser storage and try again.';return}
+ save=next;drawShop();updateHome();$('redeemCode').value='';status.textContent='Redeemed: '+rewardText(entry)+'.';
+});
+
+function loadSave(){try{const x=JSON.parse(localStorage.getItem('bulletDashSave')||'{}');const merged={...defaults,...x};merged.redeemedCodes=Array.isArray(merged.redeemedCodes)?[...new Set(merged.redeemedCodes.filter(c=>typeof c==='string'&&/^[A-Z0-9_-]{1,32}$/.test(c)))]:[];merged.highScore=Number.isFinite(Number(merged.highScore))?Math.max(0,Number(merged.highScore)):0;merged.coins=Number.isFinite(Number(merged.coins))?Math.max(0,Math.floor(Number(merged.coins))):0;merged.unlockedR=Array.isArray(merged.unlockedR)?merged.unlockedR.filter(id=>rifleSkins.some(s=>s.id===id)):['burger-cannon'];merged.unlockedB=Array.isArray(merged.unlockedB)?merged.unlockedB.filter(id=>bulletSkins.some(s=>s.id===id)):['burger'];merged.clearedLevels=Array.isArray(merged.clearedLevels)?merged.clearedLevels.filter(n=>Number.isInteger(n)&&n>=1&&n<=12):[];merged.puzzleBest=merged.puzzleBest&&typeof merged.puzzleBest==='object'?merged.puzzleBest:{};if(!merged.unlockedR.includes('burger-cannon'))merged.unlockedR.push('burger-cannon');if(!merged.unlockedB.includes('burger'))merged.unlockedB.push('burger');if(!merged.unlockedR.includes(merged.equippedR))merged.equippedR='burger-cannon';if(!merged.unlockedB.includes(merged.equippedB))merged.equippedB='burger';merged.endlessMilestone=Number.isFinite(Number(merged.endlessMilestone))?Math.max(0,Math.floor(Number(merged.endlessMilestone))):0;merged.unlockedLevel=Math.max(1,Math.min(12,Math.floor(Number(merged.unlockedLevel)||1)));return merged}catch(e){return {...defaults,redeemedCodes:[],unlockedR:['burger-cannon'],unlockedB:['burger'],clearedLevels:[],puzzleBest:{}}}}
 function persist(){try{localStorage.setItem('bulletDashSave',JSON.stringify(save))}catch(e){}}
 function currentRifle(){return rifleSkins.find(x=>x.id===save.equippedR)||rifleSkins[0]}
 function currentBullet(){return bulletSkins.find(x=>x.id===save.equippedB)||bulletSkins[0]}
@@ -133,7 +226,7 @@ function drawProjectileAt(x,y){const food=currentBullet();ctx.save();ctx.shadowC
 function spawnBurst(x,y,color){for(let i=0;i<12;i++){const a=Math.random()*Math.PI*2,v=1+Math.random()*4;particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,color})}}
 function finishPuzzle(won){if(state!=='puzzle')return;state='puzzleresult';cancelAnimationFrame(raf);$('hud').style.display='none';$('puzzleFooter').style.display='none';$('resultTitle').textContent=won?'LEVEL CLEARED':'OUT OF SHOTS';if(won){const first=!save.clearedLevels.includes(levelIndex+1);if(first){save.clearedLevels.push(levelIndex+1);save.coins+=10;coinsEarned=10}else coinsEarned=0;save.unlockedLevel=Math.max(save.unlockedLevel,Math.min(levelTemplates.length,levelIndex+2));save.puzzleBest[levelIndex+1]=Math.max(save.puzzleBest[levelIndex+1]||0,score);persist();$('resultMessage').textContent='Mission complete. '+(first?'10 coins earned and new level unlocked!':'Already cleared — no repeat coin reward.');$('nextButton').classList.toggle('hidden',levelIndex>=levelTemplates.length-1);$('nextButton').textContent='NEXT LEVEL'}else{$('resultMessage').textContent='The targets are still standing. Reset the level and try a different angle.';$('nextButton').classList.add('hidden');coinsEarned=0}$('resultScore').textContent='Score: '+score;$('resultCoins').textContent='Coins earned: '+coinsEarned;updateHome();$('resultScreen').classList.add('active');}
 function firePuzzle(x,y){if(state!=='puzzle'||shotCount<=0)return;const dx=x-bullet.x,dy=y-bullet.y,len=Math.hypot(dx,dy);if(len<15){toast('Drag farther to aim');return}const v=8.5;shotCount--;shots.push({x:bullet.x+Math.cos(Math.atan2(dy,dx))*20,y:bullet.y+Math.sin(Math.atan2(dy,dx))*20,vx:dx/len*v,vy:dy/len*v,life:260,bounces:0,hitTargets:new Set(),alive:true});$('banner').style.opacity=0;updateHud()}
-function drawShop(){ $('shopCoins').textContent='Coins: '+save.coins;const r=$('rifleCards');r.innerHTML='';rifleSkins.forEach(s=>{const owned=save.unlockedR.includes(s.id),selected=save.equippedR===s.id;const el=document.createElement('div');el.className='itemCard'+(selected?' selected':'');el.innerHTML='<div style="font-size:42px">'+s.emoji+'</div><strong>'+s.name+'</strong><p>'+(selected?'Equipped launcher':owned?'Unlocked':'Cost: '+s.cost+' coins')+'</p><button '+(selected?'disabled':'')+'>'+(selected?'EQUIPPED':owned?'EQUIP':'BUY')+'</button>';el.querySelector('button').addEventListener('click',()=>{if(owned){save.equippedR=s.id;persist();drawShop();toast(s.name+' equipped')}else if(save.coins>=s.cost){save.coins-=s.cost;save.unlockedR.push(s.id);save.equippedR=s.id;persist();drawShop();updateHome();toast(s.name+' unlocked')}else toast('You need '+(s.cost-save.coins)+' more coins')});r.appendChild(el)});const b=$('bulletCards');b.innerHTML='';bulletSkins.forEach(s=>{const owned=save.unlockedB.includes(s.id),selected=save.equippedB===s.id;const el=document.createElement('div');el.className='itemCard'+(selected?' selected':'');el.innerHTML='<div style="font-size:42px">'+s.emoji+'</div><strong>'+s.name+'</strong><p>'+(selected?'Equipped food':owned?'Unlocked':'Cost: '+s.cost+' coins')+'</p><button '+(selected?'disabled':'')+'>'+(selected?'EQUIPPED':owned?'EQUIP':'BUY')+'</button>';el.querySelector('button').addEventListener('click',()=>{if(owned){save.equippedB=s.id;persist();drawShop();toast(s.name+' equipped')}else if(save.coins>=s.cost){save.coins-=s.cost;save.unlockedB.push(s.id);save.equippedB=s.id;persist();drawShop();updateHome();toast(s.name+' unlocked')}else toast('You need '+(s.cost-save.coins)+' more coins')});b.appendChild(el)})}
+function drawShop(){ $('shopCoins').textContent='Coins: '+save.coins;const r=$('rifleCards');r.innerHTML='';rifleSkins.forEach(s=>{const owned=save.unlockedR.includes(s.id),selected=save.equippedR===s.id;const el=document.createElement('div');el.className='itemCard'+(selected?' selected':'');el.innerHTML='<div style="font-size:42px">'+escapeHTML(s.emoji)+'</div><strong>'+escapeHTML(s.name)+'</strong><p>'+(selected?'Equipped launcher':owned?'Unlocked':'Cost: '+s.cost+' coins')+'</p><button '+(selected?'disabled':'')+'>'+(selected?'EQUIPPED':owned?'EQUIP':'BUY')+'</button>';el.querySelector('button').addEventListener('click',()=>{if(owned){save.equippedR=s.id;persist();drawShop();toast(s.name+' equipped')}else if(save.coins>=s.cost){save.coins-=s.cost;save.unlockedR.push(s.id);save.equippedR=s.id;persist();drawShop();updateHome();toast(s.name+' unlocked')}else toast('You need '+(s.cost-save.coins)+' more coins')});r.appendChild(el)});const b=$('bulletCards');b.innerHTML='';bulletSkins.forEach(s=>{const owned=save.unlockedB.includes(s.id),selected=save.equippedB===s.id;const el=document.createElement('div');el.className='itemCard'+(selected?' selected':'');el.innerHTML='<div style="font-size:42px">'+escapeHTML(s.emoji)+'</div><strong>'+escapeHTML(s.name)+'</strong><p>'+(selected?'Equipped food':owned?'Unlocked':'Cost: '+s.cost+' coins')+'</p><button '+(selected?'disabled':'')+'>'+(selected?'EQUIPPED':owned?'EQUIP':'BUY')+'</button>';el.querySelector('button').addEventListener('click',()=>{if(owned){save.equippedB=s.id;persist();drawShop();toast(s.name+' equipped')}else if(save.coins>=s.cost){save.coins-=s.cost;save.unlockedB.push(s.id);save.equippedB=s.id;persist();drawShop();updateHome();toast(s.name+' unlocked')}else toast('You need '+(s.cost-save.coins)+' more coins')});b.appendChild(el)})}
 function drawLevels(){const holder=$('levelCards');holder.innerHTML='';$('levelProgress').textContent='Unlocked: '+save.unlockedLevel+' / '+levelTemplates.length;levelTemplates.forEach((l,i)=>{const n=i+1,unlocked=n<=save.unlockedLevel,cleared=save.clearedLevels.includes(n);const el=document.createElement('div');el.className='levelCard'+(!unlocked?' locked':'');el.innerHTML='<div class="levelNumber">'+(cleared?'✓':unlocked?n:'🔒')+'</div><strong>'+l.name+'</strong><p>'+l.shots+' shots'+(cleared?' • Cleared':'')+'</p><button '+(!unlocked?'disabled':'')+'>'+(cleared?'PLAY AGAIN':unlocked?'PLAY':'LOCKED')+'</button>';el.querySelector('button').addEventListener('click',()=>{if(unlocked){showScreen('homeScreen');puzzleStart(i)}});holder.appendChild(el)})}
 function goHome(){activePointer=null;aiming=false;aimPoint=null;cancelAnimationFrame(raf);state='home';$('banner').style.opacity=0;$('hud').style.display='none';$('puzzleFooter').style.display='none';showScreen('homeScreen');updateHome();ctx.clearRect(0,0,W,H);drawBackground(0)}
 function pointerPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
@@ -161,7 +254,7 @@ canvas.addEventListener('lostpointercapture',cancelPointer);
 $('guestPlayButton').addEventListener('click',()=>{if(!anonymousPlayEnabled()){toast('Anonymous play is disabled');updateGuestControls();return}guestActive=true;updateGuestControls();toast('Playing as a guest — progress stays on this device')});
 $('adminOpenButton').addEventListener('click',()=>{adminAuthenticated=false;$('adminPasswordInput').value='';updateAdminControls();showScreen('adminScreen')});
 $('adminBackButton').addEventListener('click',()=>showScreen('homeScreen'));
-$('adminLoginButton').addEventListener('click',()=>{if($('adminPasswordInput').value==='RGE123'){adminAuthenticated=true;$('adminPasswordInput').value='';updateAdminControls();toast('Admin prototype unlocked')}else toast('Incorrect admin password')});
+$('adminLoginButton').addEventListener('click',()=>{if($('adminPasswordInput').value==='RGE123'){adminAuthenticated=true;drawAdminCatalogue();$('adminPasswordInput').value='';updateAdminControls();toast('Admin prototype unlocked')}else toast('Incorrect admin password')});
 $('adminPasswordInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('adminLoginButton').click()});
 $('toggleAnonymousButton').addEventListener('click',()=>{if(!adminAuthenticated)return;const next=!anonymousPlayEnabled();anonymousEnabled=next;try{localStorage.setItem(ANON_SETTING_KEY,String(next))}catch(e){}if(!next)guestActive=false;updateAdminControls();updateGuestControls();toast('Anonymous play '+(next?'enabled':'disabled'))});
 addEventListener('storage',e=>{

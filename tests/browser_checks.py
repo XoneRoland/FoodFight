@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = os.environ.get('FOODFIGHT_TARGET', 'Food_Fight_Development.html')
-URL = 'http://127.0.0.1:8000/' + TARGET
+URL = os.environ.get('FOODFIGHT_BASE_URL','http://127.0.0.1:8000').rstrip('/') + '/' + TARGET
 HOOK = """window.testGame={puzzleStart,endlessOver,goHome,
  snapshot:()=>({state,score,coins:save.coins,shots:shotCount,aiming,bullet:{...bullet},targets:targets.map(t=>({...t})),projectiles:shots.map(s=>({...s})),barriers:barriers.map(b=>({...b}))}),
  lifetimeAt:dt=>{puzzleStart(0);cancelAnimationFrame(raf);firePuzzle(bullet.x,bullet.y+100);last=0;

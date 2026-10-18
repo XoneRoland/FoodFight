@@ -72,3 +72,41 @@ boundary and level-initialization checks use test-only browser instrumentation;
 the shipped HTML has no test hooks or free-currency controls.
 
 The suite does not solve every puzzle or replace physical iPad/Safari testing.
+
+## Local admin catalogue and reward codes
+
+From Home, tap **ADMIN PANEL**, enter `RGE123`, and log in. This is the existing
+browser-local prototype password, visible in the HTML; it is not secure access
+control.
+
+- **Add a store item:** choose Blaster / launcher or Food projectile, enter a
+  unique name, emoji/symbol and whole-number coin price, then tap **ADD TO STORE**.
+  Zero makes an item free. These are cosmetic items using the existing gameplay.
+- **Add a reward code:** enter a code using letters, numbers, `-` or `_`, choose
+  coins or a store item as its reward, then tap **ADD CODE**. Letter case is
+  ignored. The panel lists saved items and codes.
+- Return Home, choose anonymous play, and open the shop. Custom items appear
+  alongside the originals. Enter codes in **Reward code** and tap **REDEEM CODE**.
+  Coin rewards add to the balance; item rewards unlock the item for equipping.
+  Each code can be used once per local save. An already-owned item leaves its
+  code unused. Codes have no expiry in this version.
+
+Catalogue data uses `foodFightLocalCatalogueV1`; redemptions remain part of the
+compatible `bulletDashSave` progress record. Additions persist on this browser
+and site only: they are not embedded in the HTML, shared with other iPads or
+published to GitHub/Ship.page. Refresh other open tabs after creating content.
+Clearing website data removes local content and progress. A failed save displays
+an error and does not report an item/code added or consume a redemption.
+
+Additional public-UI regression tests:
+
+```sh
+python3 tests/admin_checks.py
+```
+
+Both suites accept `FOODFIGHT_BASE_URL` to test a server on a different port.
+The admin suite exercises taps at desktop and iPad portrait/landscape sizes,
+wrong/correct password, custom blasters and foods, duplicate/invalid entries,
+text-safe rendering, coin/item redemption, purchase/equip, reload persistence,
+gameplay rendering with custom equipment and storage-write failure recovery.
+Physical iPad/Safari testing remains necessary before release.
