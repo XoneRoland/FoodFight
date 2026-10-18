@@ -110,3 +110,23 @@ wrong/correct password, custom blasters and foods, duplicate/invalid entries,
 text-safe rendering, coin/item redemption, purchase/equip, reload persistence,
 gameplay rendering with custom equipment and storage-write failure recovery.
 Physical iPad/Safari testing remains necessary before release.
+
+## Guest player details
+
+**PLAY ANONYMOUSLY** now opens a form for first name, last name and username
+before enabling gameplay. Names are required (up to 40 characters each);
+usernames use 3–24 letters, numbers or underscores. Cancel leaves play locked
+unless an existing guest session was already active. The Home button changes to
+**EDIT PLAYER DETAILS** during a session, and **END SESSION** clears those details.
+
+The password-protected local admin panel shows **Current local player** with the
+session's username and full name. Details stay in memory in this tab only and
+clear on reload, End Session, or when anonymous play is disabled. They are not
+written to browser storage or sent to a server. This is a guest session, not an
+account: existing coins and progress remain shared in the browser. Other tabs
+and devices are not shown in this local player panel.
+
+Run `python3 tests/guest_checks.py` with the static server running to verify the
+form, required fields, editing/cancellation, gameplay, admin display, literal
+text rendering, session cleanup and operation with storage blocked. The existing
+browser and admin suites also cover the new guest-entry step.

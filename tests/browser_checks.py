@@ -3,6 +3,7 @@ Test-only instrumentation exposes the existing closure in the browser response;
 no hooks or seeded currency are added to the deployable HTML.
 """
 import os
+from guest_helpers import complete_guest_form
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -28,7 +29,9 @@ with sync_playwright() as p:
         page.route('**/'+TARGET, lambda route: route.fulfill(status=200,content_type='text/html',body=instrumented))
         page.goto(URL)
         def snap(): return page.evaluate('testGame.snapshot()')
-        def click(selector): page.locator(selector).click()
+        def click(selector):
+            page.locator(selector).click()
+            if selector=='#guestPlayButton':complete_guest_form(page)
         def pointer(kind, ident, x=300,y=400):
             page.locator('canvas').dispatch_event(kind,{'pointerId':ident,'pointerType':'touch','button':0,'buttons':0 if kind in ('pointerup','pointercancel') else 1,'clientX':x,'clientY':y})
         assert page.locator('#homeScreen').is_visible()

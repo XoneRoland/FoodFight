@@ -1,5 +1,6 @@
 """Public UI checks; no game instrumentation or free-coin test hooks needed."""
 import os
+from guest_helpers import complete_guest_form
 from playwright.sync_api import sync_playwright
 
 URL=os.environ.get('FOODFIGHT_BASE_URL','http://127.0.0.1:8000').rstrip('/')+'/Food_Fight_Development.html'
@@ -11,7 +12,9 @@ with sync_playwright() as p:
         errors=[]
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(URL)
-        def tap(selector): page.locator(selector).tap()
+        def tap(selector):
+            page.locator(selector).tap()
+            if selector=='#guestPlayButton':complete_guest_form(page)
         def login():
             tap('#adminOpenButton')
             page.locator('#adminPasswordInput').fill('RGE123')
@@ -111,12 +114,12 @@ with sync_playwright() as p:
     page.reload()
     page.locator('#adminOpenButton').click();page.locator('#adminPasswordInput').fill('RGE123');page.locator('#adminLoginButton').click()
     page.locator('#newCode').fill('TRYAGAIN');page.locator('#codeForm button').click()
-    page.locator('#adminLogoutButton').click();page.locator('#guestPlayButton').click();page.locator('#shopButton').click()
+    page.locator('#adminLogoutButton').click();page.locator('#guestPlayButton').click();complete_guest_form(page);page.locator('#shopButton').click()
     page.evaluate("()=>{Storage.prototype.setItem=function(){throw new Error('Quota exceeded')}}")
     page.locator('#redeemCode').fill('TRYAGAIN');page.locator('#redeemForm button').click()
     assert 'Code not used' in page.locator('#redeemStatus').inner_text()
     assert page.locator('#shopCoins').inner_text()=='Coins: 0'
-    page.reload();page.locator('#guestPlayButton').click();page.locator('#shopButton').click()
+    page.reload();page.locator('#guestPlayButton').click();complete_guest_form(page);page.locator('#shopButton').click()
     page.locator('#redeemCode').fill('TRYAGAIN');page.locator('#redeemForm button').click()
     assert page.locator('#shopCoins').inner_text()=='Coins: 100'
     print('Storage failure: PASS — no false success, reward retry remains possible')
