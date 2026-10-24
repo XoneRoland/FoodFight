@@ -52,3 +52,11 @@ single-write purchase transaction. Classic retains the original canvas fill;
 Kitchen Chaos (250) and Midnight Snack (500) use lightweight gradients and keep
 all collision geometry untouched. Buying, switching without paying again,
 refresh persistence and lifetime-earnings separation checks passed.
+
+Step 7: combos use successful target contacts only and credit each projectile
+once, preserving existing target piercing/multi-hit physics. Every third hit
+projectile adds 10 gameplay coins. A projectile retiring without a target hit
+resets the chain; restarting/leaving a round also clears it. Combo indicators
+are subtle and only shown in active Puzzle gameplay; Endless has no hit event.
+Targeted tests passed for milestone credits, repeated contacts, actual existing
+multi-target contacts, miss reset, navigation reset and atomic reward storage.

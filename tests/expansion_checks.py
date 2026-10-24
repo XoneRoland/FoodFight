@@ -15,7 +15,7 @@ legacy={'highScore':4321,'coins':875,'unlockedR':['burger-cannon','frying-pan'],
 HOOK='''window.expansion={get:()=>JSON.parse(JSON.stringify(save)),state:()=>({state,shotCount,levelIndex}),puzzleStart,firePuzzle,goHome,
  stop:()=>cancelAnimationFrame(raf),targets:()=>targets.map(t=>({...t})),
  simulate:(frames=300)=>{cancelAnimationFrame(raf);last=0;for(let i=1;i<=frames&&state==='puzzle';i++){puzzleLoop(i*16.67);cancelAnimationFrame(raf)}},
- stageShot:(x,y,hp=1)=>{const b=shots[shots.length-1];targets=[{id:0,x,y,r:15,type:'agent',hp,alive:true}];b.x=x-8;b.y=y;b.vx=8.5;b.vy=0;},
+ stageShot:(x,y,hp=1,id=0)=>{const b=shots[shots.length-1];targets=[{id,x,y,r:15,type:'agent',hp,alive:true}];b.x=x-8;b.y=y;b.vx=8.5;b.vy=0;},
  miss:()=>{for(const b of shots){b.life=0;b.alive=false}},
  preparedWin:()=>{targets.forEach(t=>t.alive=false);},
  startEndless:()=>{state='intro';startEndlessLoop();cancelAnimationFrame(raf)},
@@ -38,7 +38,7 @@ with sync_playwright() as p:
  def join():tap('#guestPlayButton');complete_guest_form(page)
  def puzzle():run('expansion.puzzleStart(0);expansion.stop()')
  def shot():run('expansion.firePuzzle(500,400);expansion.stop()')
- def hit(hp=100):run(f'expansion.stageShot(500,400,{hp});expansion.simulate(1)')
+ def hit(hp=100,target_id=0):run(f'expansion.stageShot(500,400,{hp},{target_id});expansion.simulate(1)')
  def reset():
   page.evaluate('(s)=>localStorage.setItem("bulletDashSave",JSON.stringify(s))',legacy);page.reload();join()
  def stored():return page.evaluate('JSON.parse(localStorage.getItem("bulletDashSave"))')
@@ -144,7 +144,8 @@ with sync_playwright() as p:
   assert get()['coins']==885
   assert get()['featuresV1']['stats']['hits']==3
   # Same shot hitting a different target is a real hit, but not another combo increment.
-  hit();assert get()['coins']==885
+  hit(target_id=1);assert get()['coins']==885
+  assert get()['featuresV1']['stats']['hits']>=4
   shot();run('expansion.miss();expansion.simulate(1)')
   for _ in range(2):shot();hit()
   assert get()['coins']==885
