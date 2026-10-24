@@ -24,3 +24,9 @@ as featuresV1 within bulletDashSave, deliberately using one atomic storage write
 for coins and claims rather than two independent records. Initialization does
 not write a migration back to storage. Targeted stats/malformed-data/legacy-save
 checks and the existing browser suite passed.
+
+Step 3: six achievements now show progress, Locked/Completed/Claimed state and
+manual one-time rewards. Existing distinct puzzle clears count; shots, hits and
+lifetime coin earnings use recorded counters only. Statistics include claims.
+Targeted achievement/refresh/duplicate/storage-failure checks passed. Claims and
+the existing coin balance are committed together; failed writes grant nothing.

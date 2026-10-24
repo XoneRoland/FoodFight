@@ -31,7 +31,7 @@ h1{font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:1.5px;margin-bo
 <div id="banner">GET READY</div>
 <div id="puzzleFooter"><div class="hudBox" id="shotsBox">Shots: 3</div><div class="hudBox" id="levelBox">LEVEL 1</div><button id="resetLevelButton">RESET</button></div>
 
-<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button><button id="endGuestSession" class="hidden">END SESSION</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><div class="row featureButtons"><button id="statisticsButton" disabled>STATISTICS</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
+<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button><button id="endGuestSession" class="hidden">END SESSION</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><div class="row featureButtons"><button id="achievementsButton" disabled>ACHIEVEMENTS</button><button id="statisticsButton" disabled>STATISTICS</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
 
 <section class="screen" id="guestScreen"><div class="panel"><h2>LET’S PLAY!</h2><p class="sub">Enter your player details for this local guest session.</p>
 <form id="guestForm" class="adminForm">
@@ -78,7 +78,7 @@ const ANON_SETTING_KEY='foodFightAnonymousPlayEnabled';
 let anonymousEnabled=true;
 try{anonymousEnabled=localStorage.getItem(ANON_SETTING_KEY)!=='false'}catch(e){}
 function anonymousPlayEnabled(){return anonymousEnabled}
-function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'EDIT PLAYER DETAILS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?'Playing as @'+guestProfile.username+'. Progress is saved only in this browser.':'Choose Play Anonymously to start. Your progress stays on this device.';}
+function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'EDIT PLAYER DETAILS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','achievementsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?'Playing as @'+guestProfile.username+'. Progress is saved only in this browser.':'Choose Play Anonymously to start. Your progress stays on this device.';}
 function updateAdminControls(){drawActivePlayer();const logged=adminAuthenticated;$('adminLoginArea').classList.toggle('hidden',logged);$('adminControls').classList.toggle('hidden',!logged);const enabled=anonymousPlayEnabled();$('anonymousModeStatus').textContent='Anonymous play: '+(enabled?'Enabled':'Disabled');$('toggleAnonymousButton').textContent=enabled?'DISABLE ANONYMOUS PLAY':'ENABLE ANONYMOUS PLAY';}
 let W=innerWidth,H=innerHeight,dpr=1,raf=0,last=0,state='home',mode='endless',introStart=0,gameStart=0;
 let score=0,speed=6,spawnTimer=0,bullet=null,blocks=[],wind=[],trails=[],shots=[],targets=[],crates=[],switches=[],barriers=[],particles=[];
@@ -105,13 +105,21 @@ const defaults={highScore:0,coins:0,unlockedR:['burger-cannon'],unlockedB:['burg
 const ADMIN_DATA_KEY='foodFightLocalCatalogueV1';
 const adminData=loadAdminData();
 for(const item of adminData.items)(item.type==='blaster'?rifleSkins:bulletSkins).push(item);
+const achievementDefs=[
+ {id:'first-bite',name:'First Bite',description:'Fire 1 food item',stat:'fired',goal:1,reward:25},
+ {id:'food-fighter',name:'Food Fighter',description:'Fire 100 food items',stat:'fired',goal:100,reward:100},
+ {id:'sharpshooter',name:'Sharpshooter',description:'Register 50 successful target hits',stat:'hits',goal:50,reward:150},
+ {id:'puzzle-beginner',name:'Puzzle Beginner',description:'Complete 3 different puzzle levels',stat:'levels',goal:3,reward:75},
+ {id:'puzzle-master',name:'Puzzle Master',description:'Complete all 12 puzzle levels',stat:'levels',goal:12,reward:300},
+ {id:'coin-collector',name:'Coin Collector',description:'Earn 1,000 coins cumulatively',stat:'earned',goal:1000,reward:150}
+];
 // New progress shares the existing save transaction so reward flags and coins
 // cannot be separated by a failed second localStorage write.
 function counter(n){return Number.isSafeInteger(n)&&n>=0?n:0}
 function normalizeFeatures(raw){
  const f=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
  const stats=f.stats&&typeof f.stats==='object'?f.stats:{};
- return {...f,version:1,stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(stats[k])]))};
+ return {...f,version:1,claimedAchievements:Array.isArray(f.claimedAchievements)?[...new Set(f.claimedAchievements.filter(id=>achievementDefs.some(a=>a.id===id)))]:[],stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(stats[k])]))};
 }
 function withFeatures(data){data.featuresV1=normalizeFeatures(data.featuresV1);return data}
 let save=loadSave();
@@ -143,9 +151,31 @@ function featureCard(title,description,value){
 function openFeature(title){$('featureTitle').textContent=title;$('featureContent').replaceChildren();showScreen('featureScreen')}
 function drawStatistics(){
  openFeature('STATISTICS');const stats=save.featuresV1.stats;
- for(const [label,value] of [['Foods fired',stats.fired],['Successful target hits',stats.hits],['Coins earned',stats.earned],['Rounds played',stats.rounds],['Endless high score',Math.floor(save.highScore)],['Puzzle levels completed',new Set(save.clearedLevels).size]])featureCard(label,'',value.toLocaleString());
+ for(const [label,value] of [['Foods fired',stats.fired],['Successful target hits',stats.hits],['Coins earned',stats.earned],['Rounds played',stats.rounds],['Endless high score',Math.floor(save.highScore)],['Puzzle levels completed',new Set(save.clearedLevels).size],['Achievements claimed',save.featuresV1.claimedAchievements.length]])featureCard(label,'',value.toLocaleString());
  featureCard('Recorded progress','New counters begin with this update. Existing high scores and completed levels are retained. Coin balance is separate from lifetime earnings.');
 }
+function achievementProgress(def,target=save){return def.stat==='levels'?new Set(target.clearedLevels).size:target.featuresV1.stats[def.stat]}
+function claimButton(card,label,disabled,action,id){
+ const button=document.createElement('button');button.textContent=label;button.disabled=disabled;if(id)button.id=id;
+ button.addEventListener('click',action);card.appendChild(button);return button;
+}
+function drawAchievements(){
+ openFeature('ACHIEVEMENTS');
+ for(const def of achievementDefs){
+  const progress=achievementProgress(def),claimed=save.featuresV1.claimedAchievements.includes(def.id),complete=progress>=def.goal;
+  const status=claimed?'Claimed':complete?'Completed':'Locked';
+  const card=featureCard(def.name,def.description+' • '+Math.min(progress,def.goal)+' / '+def.goal+' • '+def.reward+' coins',status);
+  claimButton(card,claimed?'CLAIMED':complete?'CLAIM':'LOCKED',claimed||!complete,()=>{
+   if(!guestActive||!anonymousPlayEnabled())return;
+   transactSave(next=>{
+    if(next.featuresV1.claimedAchievements.includes(def.id)||achievementProgress(def,next)<def.goal)return false;
+    if(!creditCoins(next,def.reward))return false;
+    next.featuresV1.claimedAchievements.push(def.id);
+   });drawAchievements();
+  });
+ }
+}
+$('achievementsButton').addEventListener('click',()=>{if(guestActive)drawAchievements()});
 $('statisticsButton').addEventListener('click',()=>{if(guestActive)drawStatistics()});
 $('featureBack').addEventListener('click',()=>{updateHome();showScreen('homeScreen')});
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
