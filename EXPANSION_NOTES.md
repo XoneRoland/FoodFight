@@ -38,3 +38,11 @@ daily counters and share actual gameplay events. Reward/code earnings count for
 lifetime coins; only puzzle/Endless/combo earnings count for gameplay missions.
 Tests passed across local midnight in Australia/Perth, refresh, skipped dates,
 cycle wrap, mission progress/claims/reset, and failed-storage reward claims.
+
+Step 5: existing cleared puzzles conservatively receive one star in memory,
+without an initialization write. Completed runs get shots-used ratings and keep
+their best. Level cards explain each level's thresholds; win results and stats
+show stars. Unlock/completion mechanics and all level templates are unchanged.
+The short levels can legitimately award two stars even with their full shot
+budget; Finale uses six/seven shots for three/two stars. Any clear still wins.
+Migration, improved clear, lower-rated replay and refresh checks passed.
