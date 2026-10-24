@@ -46,3 +46,9 @@ show stars. Unlock/completion mechanics and all level templates are unchanged.
 The short levels can legitimately award two stars even with their full shot
 budget; Finale uses six/seven shots for three/two stars. Any clear still wins.
 Migration, improved clear, lower-rated replay and refresh checks passed.
+
+Step 6: shop background cards use the existing card style, coin balance and
+single-write purchase transaction. Classic retains the original canvas fill;
+Kitchen Chaos (250) and Midnight Snack (500) use lightweight gradients and keep
+all collision geometry untouched. Buying, switching without paying again,
+refresh persistence and lifetime-earnings separation checks passed.
