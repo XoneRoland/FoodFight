@@ -130,3 +130,88 @@ Run `python3 tests/guest_checks.py` with the static server running to verify the
 form, required fields, editing/cancellation, gameplay, admin display, literal
 text rendering, session cleanup and operation with storage blocked. The existing
 browser and admin suites also cover the new guest-entry step.
+
+## Small feature expansion (October 2026)
+
+Home now has **Daily Rewards**, **Daily Missions**, **Achievements**, and
+**Statistics** after entering guest play. No additional packages, build step,
+backend, online account or runtime files are required.
+
+- Daily Rewards follows 25, 50, 75, 100, 150, 200, 300 coins, one claim per local
+  calendar day. Skipping days retains cycle position. The next claim after day
+  seven starts at day one. The day is based on the player's device timezone.
+- Achievements are manually claimed: First Bite (1 launch/25 coins), Food Fighter
+  (100 launches/100), Sharpshooter (50 target hits/150), Puzzle Beginner
+  (3 distinct clears/75), Puzzle Master (12 clears/300), Coin Collector
+  (1,000 lifetime recorded earnings/150).
+- Three Daily Missions use a deterministic rotation from five definitions:
+  20 launches/25 coins, 10 target hits/50, 3 rounds/25, 2 puzzle clears including
+  replays/75, and 100 gameplay coins/100. Only that day's gameplay contributes;
+  mission/achievement/daily/code rewards do not advance gameplay-coin missions.
+- Puzzle wins show 1–3 stars, and level cards show the shots-used thresholds.
+  The best rating is kept. Prior clears get one star because old saves recorded
+  scores rather than shots used. All original unlock and win conditions remain.
+- Shop backgrounds are Classic (free/default), Kitchen Chaos (250), and Midnight
+  Snack (500). Purchases are permanent in this browser save; equipping is free.
+- Combos apply to Puzzle Mode's target contacts. Each food projectile contributes
+  at most one combo hit even though existing piercing can damage multiple targets.
+  Each third hit projectile grants 10 coins. A food that expires without a target
+  hit resets the chain. New rounds/navigation also reset it. Crates, switches and
+  barriers do not count as successful target hits. Contact/retirement events drive
+  the chain; simultaneous shots are resolved in the existing simulation order.
+
+Statistics count launches, unique projectile/target contacts, rounds actually
+started, lifetime coins earned, high score, distinct puzzle clears, best stars,
+and claimed achievements. Puzzle rounds start on the first valid shot, not when
+selecting/resetting a level. Endless has one food launch per run and no target
+hits. New counters start at zero; unknown historical activity is not fabricated.
+Existing completed levels and high score remain authoritative. Spending coins
+does not reduce lifetime earnings. All positive rewards including local codes
+count as lifetime earnings; gameplay coins are tracked separately for missions.
+
+### Storage compatibility
+
+Existing `bulletDashSave` fields and `foodFightLocalCatalogueV1` are retained.
+The extension uses a versioned `featuresV1` namespace **inside bulletDashSave**
+for stats, achievements, daily state, missions, stars, backgrounds and ownership.
+This additive layout allows coin changes and claim/purchase flags to be written
+in one localStorage record. There is no second balance or two-record transaction.
+Initialization normalizes in memory without writing or clearing the legacy save.
+Malformed new fields fall back independently without deleting unrelated fields.
+
+Reward claims and background purchases commit only after a successful write.
+They reject a stale tab if another tab changed the save; reload before continuing.
+This is a practical local safeguard, not a cross-process database transaction.
+Gameplay retains the existing in-memory fallback when storage is unavailable,
+but changes cannot survive a reload until storage works. Counters are written
+on gameplay events, not on every animation frame.
+
+Saves are device/browser/site-specific, shared by guest sessions in that browser,
+and can be cleared by the browser. Device clock changes and localStorage edits
+cannot be fully prevented without a server; this update adds no server.
+
+### Expansion validation
+
+With the static server running, use the existing three suites plus:
+
+```sh
+python3 tests/expansion_checks.py --stage combos
+python3 tests/expansion_edges.py
+python3 tests/expansion_ui_checks.py
+```
+
+All accept FOODFIGHT_BASE_URL. The staged suite can also stop after stats,
+achievements, daily, stars or backgrounds. It drives existing functions and
+collision simulation through test-only response instrumentation. The UI suite
+uses the served HTML without hooks, checks the original 12 templates/collision
+logic/recovered files, and exercises touch, mouse dragging, keyboard activation,
+claims, themes, a real puzzle clear and refresh at desktop, portrait/landscape
+ tablet and mobile sizes. Screenshots go to /tmp/foodfight-review, outside the repo.
+The edge suite checks Perth/Los Angeles date handling alongside the staged tests,
+failed writes, repeated detached button events, stale mission dates, malformed
+new fields and stale-tab protection.
+
+Physical iPad/Safari remains untested. Before release, verify Safari keyboard
+entry, menu scrolling in both orientations, touch aiming, rotation during play,
+background contrast and a reload after earning/claiming/spending coins. Automated
+checks initialize all 12 puzzles but do not solve every puzzle.

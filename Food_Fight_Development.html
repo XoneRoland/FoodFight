@@ -146,10 +146,26 @@ function counter(n){return Number.isSafeInteger(n)&&n>=0?n:0}
 function normalizeFeatures(raw){
  const f=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
  const stats=f.stats&&typeof f.stats==='object'?f.stats:{};
- return {...f,version:1,backgrounds:normalizeBackgrounds(f.backgrounds),stars:Object.fromEntries(Object.entries(f.stars&&typeof f.stars==='object'?f.stars:{}).filter(([id,n])=>/^([1-9]|1[0-2])$/.test(id)&&Number.isInteger(n)&&n>=1&&n<=3)),daily:{index:Number.isInteger(f.daily?.index)&&f.daily.index>=0&&f.daily.index<7?f.daily.index:0,lastDate:validDay(f.daily?.lastDate)?f.daily.lastDate:null},missions:normalizeMissions(f.missions),claimedAchievements:Array.isArray(f.claimedAchievements)?[...new Set(f.claimedAchievements.filter(id=>achievementDefs.some(a=>a.id===id)))]:[],stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(stats[k])]))};
+ return {
+  ...f,version:1,backgrounds:normalizeBackgrounds(f.backgrounds),
+  stars:Object.fromEntries(Object.entries(f.stars&&typeof f.stars==='object'?f.stars:{})
+   .filter(([id,n])=>/^([1-9]|1[0-2])$/.test(id)&&Number.isInteger(n)&&n>=1&&n<=3)),
+  daily:{index:Number.isInteger(f.daily?.index)&&f.daily.index>=0&&f.daily.index<7?f.daily.index:0,
+   lastDate:validDay(f.daily?.lastDate)?f.daily.lastDate:null},
+  missions:normalizeMissions(f.missions),
+  claimedAchievements:Array.isArray(f.claimedAchievements)?[...new Set(f.claimedAchievements
+   .filter(id=>achievementDefs.some(a=>a.id===id)))]:[],
+  stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins']
+   .map(k=>[k,counter(stats[k])]))
+ };
 }
-function withFeatures(data){data.featuresV1=normalizeFeatures(data.featuresV1);for(const level of data.clearedLevels)if(!data.featuresV1.stars[level])data.featuresV1.stars[level]=1;return data}
-let save=loadSave();
+function withFeatures(data){
+ data.featuresV1=normalizeFeatures(data.featuresV1);
+ for(const level of data.clearedLevels)if(!data.featuresV1.stars[level])data.featuresV1.stars[level]=1;
+ return data;
+}
+let save=loadSave(),observedSave=null;
+try{observedSave=localStorage.getItem('bulletDashSave')}catch(e){}
 let comboCount=0,comboTimer=0;
 let puzzleRoundCounted=false,activeFeature=null,renderedDay=null;
 function recordEvent(kind,amount=1,target=save){
@@ -165,6 +181,11 @@ function creditCoins(target,amount,gameplay=false){
  return true;
 }
 function transactSave(change){
+ try{
+  if(localStorage.getItem('bulletDashSave')!==observedSave){
+   toast('Progress changed in another tab. Reload before claiming or purchasing.');return false;
+  }
+ }catch(e){toast('Browser storage is unavailable. Reward not claimed.');return false}
  const next=JSON.parse(JSON.stringify(save));
  if(change(next)===false)return false;
  if(!writeLocal('bulletDashSave',next)){toast('Could not save. Please enable browser storage or free space and try again.');return false}
@@ -273,7 +294,7 @@ function loadAdminData(){
  return result;
 }
 function makeItem(id,type,name,emoji,cost){return {id,type,name,emoji,cost,a:'#52d8ff',b:'#168bd8',c:'#b8f2ff',glow:'#ffc45c',trail:'#ffd27b'}}
-function writeLocal(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){return false}}
+function writeLocal(key,value){try{const encoded=JSON.stringify(value);localStorage.setItem(key,encoded);if(key==='bulletDashSave')observedSave=encoded;return true}catch(e){return false}}
 function rewardText(code){const item=[...rifleSkins,...bulletSkins].find(i=>i.id===code.itemId);return code.kind==='coins'?code.coins+' coins':item?.name||'Unknown item'}
 function drawAdminCatalogue(){
  const select=$('codeReward'),previous=select.value;select.replaceChildren(new Option('Coins','coins'));
@@ -325,7 +346,7 @@ $('redeemForm').addEventListener('submit',e=>{
 });
 
 function loadSave(){try{const x=JSON.parse(localStorage.getItem('bulletDashSave')||'{}');const merged={...defaults,...x};merged.redeemedCodes=Array.isArray(merged.redeemedCodes)?[...new Set(merged.redeemedCodes.filter(c=>typeof c==='string'&&/^[A-Z0-9_-]{1,32}$/.test(c)))]:[];merged.highScore=Number.isFinite(Number(merged.highScore))?Math.max(0,Number(merged.highScore)):0;merged.coins=Number.isFinite(Number(merged.coins))?Math.max(0,Math.floor(Number(merged.coins))):0;merged.unlockedR=Array.isArray(merged.unlockedR)?merged.unlockedR.filter(id=>rifleSkins.some(s=>s.id===id)):['burger-cannon'];merged.unlockedB=Array.isArray(merged.unlockedB)?merged.unlockedB.filter(id=>bulletSkins.some(s=>s.id===id)):['burger'];merged.clearedLevels=Array.isArray(merged.clearedLevels)?merged.clearedLevels.filter(n=>Number.isInteger(n)&&n>=1&&n<=12):[];merged.puzzleBest=merged.puzzleBest&&typeof merged.puzzleBest==='object'?merged.puzzleBest:{};if(!merged.unlockedR.includes('burger-cannon'))merged.unlockedR.push('burger-cannon');if(!merged.unlockedB.includes('burger'))merged.unlockedB.push('burger');if(!merged.unlockedR.includes(merged.equippedR))merged.equippedR='burger-cannon';if(!merged.unlockedB.includes(merged.equippedB))merged.equippedB='burger';merged.endlessMilestone=Number.isFinite(Number(merged.endlessMilestone))?Math.max(0,Math.floor(Number(merged.endlessMilestone))):0;merged.unlockedLevel=Math.max(1,Math.min(12,Math.floor(Number(merged.unlockedLevel)||1)));return withFeatures(merged)}catch(e){return withFeatures({...defaults,redeemedCodes:[],unlockedR:['burger-cannon'],unlockedB:['burger'],clearedLevels:[],puzzleBest:{}})}}
-function persist(){try{localStorage.setItem('bulletDashSave',JSON.stringify(save))}catch(e){}}
+function persist(){return writeLocal('bulletDashSave',save)}
 function currentRifle(){return rifleSkins.find(x=>x.id===save.equippedR)||rifleSkins[0]}
 function currentBullet(){return bulletSkins.find(x=>x.id===save.equippedB)||bulletSkins[0]}
 // Preserve world positions when iPad orientation or the viewport changes.

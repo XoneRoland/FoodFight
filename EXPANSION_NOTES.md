@@ -60,3 +60,28 @@ resets the chain; restarting/leaving a round also clears it. Combo indicators
 are subtle and only shown in active Puzzle gameplay; Endless has no hit event.
 Targeted tests passed for milestone credits, repeated contacts, actual existing
 multi-target contacts, miss reset, navigation reset and atomic reward storage.
+
+Final checks: browser_checks.py, admin_checks.py and guest_checks.py passed at
+ desktop and iPad portrait/landscape sizes, including storage failure scenarios.
+expansion_checks.py passed all feature stages. expansion_edges.py passed failed
+writes for daily/mission/background rewards, repeated stale button events,
+Los Angeles midnight/date rollback, stale mission dates, malformed new data and
+stale-tab protection. expansion_ui_checks.py passed at desktop, iPad portrait,
+iPad landscape and phone sizes with actual browser touch/mouse input and native
+keyboard button activation, a real puzzle clear, all new panels and refresh.
+No JavaScript exceptions occurred in these runs. JavaScript syntax and diff
+whitespace checks passed. Original puzzle physics is byte-identical after removing
+additive event hooks; all 12 templates and recovered originals are unchanged.
+
+Limitations: real iPad/Safari and a full manual solve of all 12 puzzles remain
+unrun. Old saves have no lifetime shots/hits/earnings history, and the baseline
+has no separate rarity system or keyboard movement controls; existing skins,
+pointer gameplay and native keyboard controls are retained. The storage layout
+is additive and tested with representative legacy progress, not a read of the
+user's actual iPad data. Local device-date manipulation remains possible.
+
+A repeated phone-sized UI run initially exposed a test-input timing issue: an
+instant CDP drag/release was followed by pointer/touch events without a native
+click. The test now uses six paced finger-movement steps and captures input
+traces on failure. Five consecutive phone runs passed. The game's original touch
+handlers were retained; no touch workaround or physics change was shipped.
