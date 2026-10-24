@@ -103,7 +103,10 @@ with sync_playwright() as p:
   home();tap('#missionsButton')
   missions=get()['featuresV1']['missions'];assert missions['progress']['fired']==20 and missions['progress']['rounds']==20
   assert missions['progress']['hits']==0
-  for button in page.locator('#featureContent button:enabled').all():button.click()
+  for _ in range(10):puzzle();shot();hit(1)
+  for _ in range(5):run('expansion.startEndless();expansion.crash()')
+  home();tap('#missionsButton')
+  while page.locator('#featureContent button:enabled').count():page.locator('#featureContent button:enabled').first.click()
   claimed=get()['featuresV1']['missions']['claimed'];assert len(claimed)>0
   coins=get()['coins'];home();tap('#missionsButton');assert page.locator('#featureContent button:enabled').count()==0
   assert get()['coins']==coins

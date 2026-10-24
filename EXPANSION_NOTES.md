@@ -30,3 +30,11 @@ manual one-time rewards. Existing distinct puzzle clears count; shots, hits and
 lifetime coin earnings use recorded counters only. Statistics include claims.
 Targeted achievement/refresh/duplicate/storage-failure checks passed. Claims and
 the existing coin balance are committed together; failed writes grant nothing.
+
+Step 4: local-calendar daily rewards follow the requested seven amounts, retain
+cycle position after missed days and block same-day repeated claims. Missions
+use a deterministic rotation of three different IDs per date, reset only their
+daily counters and share actual gameplay events. Reward/code earnings count for
+lifetime coins; only puzzle/Endless/combo earnings count for gameplay missions.
+Tests passed across local midnight in Australia/Perth, refresh, skipped dates,
+cycle wrap, mission progress/claims/reset, and failed-storage reward claims.

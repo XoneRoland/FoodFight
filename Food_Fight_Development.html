@@ -31,7 +31,7 @@ h1{font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:1.5px;margin-bo
 <div id="banner">GET READY</div>
 <div id="puzzleFooter"><div class="hudBox" id="shotsBox">Shots: 3</div><div class="hudBox" id="levelBox">LEVEL 1</div><button id="resetLevelButton">RESET</button></div>
 
-<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button><button id="endGuestSession" class="hidden">END SESSION</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><div class="row featureButtons"><button id="achievementsButton" disabled>ACHIEVEMENTS</button><button id="statisticsButton" disabled>STATISTICS</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
+<section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button><button id="endGuestSession" class="hidden">END SESSION</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><div class="row featureButtons"><button id="dailyButton" disabled>DAILY REWARDS</button><button id="missionsButton" disabled>DAILY MISSIONS</button><button id="achievementsButton" disabled>ACHIEVEMENTS</button><button id="statisticsButton" disabled>STATISTICS</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
 
 <section class="screen" id="guestScreen"><div class="panel"><h2>LET’S PLAY!</h2><p class="sub">Enter your player details for this local guest session.</p>
 <form id="guestForm" class="adminForm">
@@ -78,7 +78,7 @@ const ANON_SETTING_KEY='foodFightAnonymousPlayEnabled';
 let anonymousEnabled=true;
 try{anonymousEnabled=localStorage.getItem(ANON_SETTING_KEY)!=='false'}catch(e){}
 function anonymousPlayEnabled(){return anonymousEnabled}
-function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'EDIT PLAYER DETAILS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','achievementsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?'Playing as @'+guestProfile.username+'. Progress is saved only in this browser.':'Choose Play Anonymously to start. Your progress stays on this device.';}
+function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'EDIT PLAYER DETAILS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','dailyButton','missionsButton','achievementsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?'Playing as @'+guestProfile.username+'. Progress is saved only in this browser.':'Choose Play Anonymously to start. Your progress stays on this device.';}
 function updateAdminControls(){drawActivePlayer();const logged=adminAuthenticated;$('adminLoginArea').classList.toggle('hidden',logged);$('adminControls').classList.toggle('hidden',!logged);const enabled=anonymousPlayEnabled();$('anonymousModeStatus').textContent='Anonymous play: '+(enabled?'Enabled':'Disabled');$('toggleAnonymousButton').textContent=enabled?'DISABLE ANONYMOUS PLAY':'ENABLE ANONYMOUS PLAY';}
 let W=innerWidth,H=innerHeight,dpr=1,raf=0,last=0,state='home',mode='endless',introStart=0,gameStart=0;
 let score=0,speed=6,spawnTimer=0,bullet=null,blocks=[],wind=[],trails=[],shots=[],targets=[],crates=[],switches=[],barriers=[],particles=[];
@@ -105,6 +105,22 @@ const defaults={highScore:0,coins:0,unlockedR:['burger-cannon'],unlockedB:['burg
 const ADMIN_DATA_KEY='foodFightLocalCatalogueV1';
 const adminData=loadAdminData();
 for(const item of adminData.items)(item.type==='blaster'?rifleSkins:bulletSkins).push(item);
+const dailyAmounts=[25,50,75,100,150,200,300];
+const missionDefs=[
+ {id:'fire',description:'Fire 20 food items',stat:'fired',goal:20,reward:25},
+ {id:'hit',description:'Register 10 successful target hits',stat:'hits',goal:10,reward:50},
+ {id:'play',description:'Play 3 rounds',stat:'rounds',goal:3,reward:25},
+ {id:'puzzle',description:'Complete 2 puzzle levels (replays count)',stat:'puzzleWins',goal:2,reward:75},
+ {id:'earn',description:'Earn 100 coins through gameplay',stat:'gameplayCoins',goal:100,reward:100}
+];
+function localDay(date=new Date()){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
+function validDay(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&localDay(new Date(value+'T12:00:00'))===value}
+function missionIds(date){const [y,m,d]=date.split('-').map(Number),offset=Math.floor(Date.UTC(y,m-1,d)/86400000)%missionDefs.length;return [0,1,2].map(i=>missionDefs[(offset+i)%missionDefs.length].id)}
+function normalizeMissions(raw){
+ const m=raw&&typeof raw==='object'?raw:{};
+ const ids=Array.isArray(m.ids)&&m.ids.length===3&&new Set(m.ids).size===3&&m.ids.every(id=>missionDefs.some(d=>d.id===id))?m.ids:[];
+ return {date:validDay(m.date)?m.date:null,ids,progress:Object.fromEntries(['fired','hits','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(m.progress?.[k])])),claimed:Array.isArray(m.claimed)?[...new Set(m.claimed.filter(id=>ids.includes(id)))]:[]};
+}
 const achievementDefs=[
  {id:'first-bite',name:'First Bite',description:'Fire 1 food item',stat:'fired',goal:1,reward:25},
  {id:'food-fighter',name:'Food Fighter',description:'Fire 100 food items',stat:'fired',goal:100,reward:100},
@@ -119,15 +135,16 @@ function counter(n){return Number.isSafeInteger(n)&&n>=0?n:0}
 function normalizeFeatures(raw){
  const f=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
  const stats=f.stats&&typeof f.stats==='object'?f.stats:{};
- return {...f,version:1,claimedAchievements:Array.isArray(f.claimedAchievements)?[...new Set(f.claimedAchievements.filter(id=>achievementDefs.some(a=>a.id===id)))]:[],stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(stats[k])]))};
+ return {...f,version:1,daily:{index:Number.isInteger(f.daily?.index)&&f.daily.index>=0&&f.daily.index<7?f.daily.index:0,lastDate:validDay(f.daily?.lastDate)?f.daily.lastDate:null},missions:normalizeMissions(f.missions),claimedAchievements:Array.isArray(f.claimedAchievements)?[...new Set(f.claimedAchievements.filter(id=>achievementDefs.some(a=>a.id===id)))]:[],stats:Object.fromEntries(['fired','hits','earned','rounds','puzzleWins','gameplayCoins'].map(k=>[k,counter(stats[k])]))};
 }
 function withFeatures(data){data.featuresV1=normalizeFeatures(data.featuresV1);return data}
 let save=loadSave();
-let puzzleRoundCounted=false;
+let puzzleRoundCounted=false,activeFeature=null,renderedDay=null;
 function recordEvent(kind,amount=1,target=save){
  const stats=target.featuresV1.stats;
  if(!(kind in stats)||!Number.isSafeInteger(amount)||amount<0)return;
  stats[kind]=Math.min(Number.MAX_SAFE_INTEGER,stats[kind]+amount);
+ const missions=ensureMissions(target);if(kind in missions.progress)missions.progress[kind]=Math.min(Number.MAX_SAFE_INTEGER,missions.progress[kind]+amount);
 }
 function creditCoins(target,amount,gameplay=false){
  if(!Number.isSafeInteger(amount)||amount<0||!Number.isSafeInteger(target.coins+amount))return false;
@@ -148,7 +165,7 @@ function featureCard(title,description,value){
  if(value!==undefined){const result=document.createElement('strong');result.textContent=value;card.appendChild(result)}
  $('featureContent').appendChild(card);return card;
 }
-function openFeature(title){$('featureTitle').textContent=title;$('featureContent').replaceChildren();showScreen('featureScreen')}
+function openFeature(title){activeFeature=title;renderedDay=localDay();$('featureTitle').textContent=title;$('featureContent').replaceChildren();showScreen('featureScreen')}
 function drawStatistics(){
  openFeature('STATISTICS');const stats=save.featuresV1.stats;
  for(const [label,value] of [['Foods fired',stats.fired],['Successful target hits',stats.hits],['Coins earned',stats.earned],['Rounds played',stats.rounds],['Endless high score',Math.floor(save.highScore)],['Puzzle levels completed',new Set(save.clearedLevels).size],['Achievements claimed',save.featuresV1.claimedAchievements.length]])featureCard(label,'',value.toLocaleString());
@@ -176,6 +193,48 @@ function drawAchievements(){
  }
 }
 $('achievementsButton').addEventListener('click',()=>{if(guestActive)drawAchievements()});
+function ensureMissions(target=save){
+ const today=localDay(),m=target.featuresV1.missions;
+ if(m.date!==today||m.ids.length!==3)target.featuresV1.missions={date:today,ids:missionIds(today),progress:{fired:0,hits:0,rounds:0,puzzleWins:0,gameplayCoins:0},claimed:[]};
+ return target.featuresV1.missions;
+}
+function drawDaily(){
+ openFeature('DAILY REWARDS');const daily=save.featuresV1.daily,today=localDay();
+ const claimed=daily.lastDate===today,blocked=daily.lastDate!==null&&daily.lastDate>=today;
+ const index=claimed?(daily.index+6)%7:daily.index;
+ const card=featureCard('Day '+(index+1)+' • '+dailyAmounts[index]+' coins','One reward per local calendar day. Missed days keep your place in the seven-day cycle.',claimed?'Claimed today':blocked?'Already claimed for this date or a later date':'Ready to claim');
+ claimButton(card,blocked?'CLAIMED':'CLAIM REWARD',blocked,()=>{
+  if(!guestActive||!anonymousPlayEnabled())return;
+  transactSave(next=>{
+   const current=next.featuresV1.daily,date=localDay();if(current.lastDate!==null&&current.lastDate>=date)return false;
+   if(!creditCoins(next,dailyAmounts[current.index]))return false;
+   current.lastDate=date;current.index=(current.index+1)%7;
+  });drawDaily();
+ },'claimDaily');
+ featureCard('Seven-day cycle',dailyAmounts.map((n,i)=>'Day '+(i+1)+': '+n).join(' • '));
+}
+function drawMissions(){
+ const old=save.featuresV1.missions;ensureMissions();if(old!==save.featuresV1.missions)persist();
+ openFeature('DAILY MISSIONS');const missions=save.featuresV1.missions,date=missions.date;
+ featureCard('Today • '+date,'Three missions each local calendar day. Only actual gameplay advances progress.');
+ for(const id of missions.ids){
+  const def=missionDefs.find(m=>m.id===id),value=missions.progress[def.stat],claimed=missions.claimed.includes(id),complete=value>=def.goal;
+  const card=featureCard(def.description,Math.min(value,def.goal)+' / '+def.goal+' • '+def.reward+' coins',claimed?'Claimed':complete?'Completed':'In progress');
+  claimButton(card,claimed?'CLAIMED':complete?'CLAIM':'IN PROGRESS',claimed||!complete,()=>{
+   if(!guestActive||!anonymousPlayEnabled())return;
+   transactSave(next=>{
+    const current=ensureMissions(next);
+    if(current.date!==date||!current.ids.includes(id)||current.claimed.includes(id)||current.progress[def.stat]<def.goal)return false;
+    if(!creditCoins(next,def.reward))return false;
+    current.claimed.push(id);
+   });drawMissions();
+  });
+ }
+}
+function refreshDailyPanels(){if(renderedDay===localDay())return;if(activeFeature==='DAILY REWARDS')drawDaily();else if(activeFeature==='DAILY MISSIONS')drawMissions()}
+setInterval(refreshDailyPanels,30000);addEventListener('focus',refreshDailyPanels);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDailyPanels()});
+$('dailyButton').addEventListener('click',()=>{if(guestActive)drawDaily()});
+$('missionsButton').addEventListener('click',()=>{if(guestActive)drawMissions()});
 $('statisticsButton').addEventListener('click',()=>{if(guestActive)drawStatistics()});
 $('featureBack').addEventListener('click',()=>{updateHome();showScreen('homeScreen')});
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -260,7 +319,7 @@ function currentBullet(){return bulletSkins.find(x=>x.id===save.equippedB)||bull
 // Preserve world positions when iPad orientation or the viewport changes.
 function resize(){const oldW=W,oldH=H;W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(W*dpr);canvas.height=Math.floor(H*dpr);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);if(bullet){const sx=W/oldW,sy=H/oldH;for(const obj of [bullet,...targets,...crates,...switches,...barriers,...shots,...blocks]){obj.x*=sx;obj.y*=sy;if('w' in obj)obj.w*=sx;if('h' in obj)obj.h*=sy;if('width' in obj&&obj!==bullet)obj.width*=sx;if('height' in obj&&obj!==bullet)obj.height*=sy;}bullet.targetX*=sx;bullet.targetY*=sy;aiming=false;aimPoint=null;activePointer=null;}}
 addEventListener('resize',resize);resize();
-function showScreen(id){screens.forEach(s=>$(s).classList.toggle('active',s===id));}
+function showScreen(id){if(id!=='featureScreen')activeFeature=null;screens.forEach(s=>$(s).classList.toggle('active',s===id));}
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800)}
 function updateHome(){ $('highScoreText').innerHTML='High score: <strong>'+Math.floor(save.highScore)+'</strong>';$('coinsText').innerHTML='Coins: <strong>'+save.coins+'</strong>';$('progressText').innerHTML='Puzzle levels: <strong>'+save.clearedLevels.length+'/12</strong>'; }
 function updateHud(){ $('hud').style.display=['intro','playing','puzzle'].includes(state)?'flex':'none';$('puzzleFooter').style.display=state==='puzzle'?'flex':'none';$('modeBox').textContent=mode==='puzzle'?'PUZZLE MODE':'ENDLESS RUN';$('scoreBox').textContent=mode==='puzzle'?'LEVEL '+(levelIndex+1)+' • '+(targets.filter(t=>t.alive).length)+' TARGETS':'Score: '+Math.floor(score);$('shotsBox').textContent='Shots: '+Math.max(0,shotCount);$('levelBox').textContent='LEVEL '+(levelIndex+1);}
