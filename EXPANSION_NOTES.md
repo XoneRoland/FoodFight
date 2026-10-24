@@ -15,3 +15,12 @@ forms and admin Enter; gameplay uses dragging. No existing controls are removed.
 Implementation plan: shared recorded statistics/coin credits; achievements;
 local daily rewards/missions; puzzle best stars; backgrounds; per-projectile
 combos; final compatibility and interaction checks. Each step gets a commit.
+
+Step 2: statistics and a shared creditCoins function now use real launches,
+unique projectile/target contacts and run starts. Puzzle selection/reset alone
+is not counted as play. New historical counters start at zero; existing high
+scores and completion data remain their source of truth. New data is namespaced
+as featuresV1 within bulletDashSave, deliberately using one atomic storage write
+for coins and claims rather than two independent records. Initialization does
+not write a migration back to storage. Targeted stats/malformed-data/legacy-save
+checks and the existing browser suite passed.
