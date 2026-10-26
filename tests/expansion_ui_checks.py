@@ -4,7 +4,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from guest_helpers import complete_guest_form
 ROOT=Path(__file__).resolve().parents[1]
-URL=os.environ.get('FOODFIGHT_BASE_URL','http://127.0.0.1:8000').rstrip('/')+'/Food_Fight_Development.html'
+URL=os.environ.get('FOODFIGHT_BASE_URL','http://127.0.0.1:8000').rstrip('/')+'/'+os.environ.get('FOODFIGHT_GAME_PATH','Food_Fight_Development.html').lstrip('/')
 source=(ROOT/'Food_Fight_Development.html').read_text()
 baseline=subprocess.check_output(['git','show','530fb1e:Food_Fight_Development.html'],cwd=ROOT,text=True)
 for pattern in [r'const levelTemplates=\[.*?\n\];',r'function collision\(a,b\)\{.*?\}']:

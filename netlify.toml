@@ -1,0 +1,3 @@
+[build]
+  command = "mkdir -p dist && cp Food_Fight_Development.html dist/index.html"
+  publish = "dist"

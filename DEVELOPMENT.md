@@ -215,3 +215,36 @@ Physical iPad/Safari remains untested. Before release, verify Safari keyboard
 entry, menu scrolling in both orientations, touch aiming, rotation during play,
 background contrast and a reload after earning/claiming/spending coins. Automated
 checks initialize all 12 puzzles but do not solve every puzzle.
+
+## Netlify deployment
+
+`netlify.toml` builds the static site by copying the current
+`Food_Fight_Development.html` to `dist/index.html`. No package installation or
+framework build is needed. Only `dist` is published; repository documentation,
+tests and recovered source files are not part of the website. `dist` is generated
+and ignored by Git. The playable game remains a single HTML file.
+
+Connect the XoneRoland/FoodFight GitHub repository to your Netlify project and use
+`main` as its production branch. Keep the base directory at the repository root.
+The committed configuration provides the build command and publish directory;
+remove conflicting per-project overrides if they point to an old folder.
+After connection, a successful production build following a main-branch push
+makes this version live. Preserve your existing site/domain to retain saves for
+that origin; progress does not automatically transfer to another domain.
+
+To reproduce the build locally:
+
+```sh
+mkdir -p dist && cp Food_Fight_Development.html dist/index.html
+python3 -m http.server 8040 --bind 127.0.0.1 --directory dist
+```
+
+To validate the actual published entry point with the browser suite:
+
+```sh
+FOODFIGHT_BASE_URL=http://127.0.0.1:8040 FOODFIGHT_GAME_PATH=/ python3 tests/expansion_ui_checks.py
+```
+
+The configuration does not add levels: the current release includes the original
+12 puzzle levels plus the seven-feature expansion. An external deployment is
+confirmed only after its public URL has been checked.

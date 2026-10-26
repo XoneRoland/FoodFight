@@ -7,8 +7,20 @@ The primary recovered source is `source/Food_Fight_Classic_Anonymous_Admin.html`
 
 Read `AGENTS.md`, `REQUIREMENTS.md`, and `CODEX_START_PROMPT.md` before modifying code.
 
+## Current release and deployment
+The current playable release is `Food_Fight_Development.html`, including the
+seven-feature expansion and all 12 original puzzle levels. Recovered source
+files remain preserved.
+
+For Netlify, connect this GitHub repository and select `main` as the production
+branch with the repository root as the base directory. `netlify.toml` copies the
+current game to `dist/index.html` and publishes only `dist`. No build dependencies
+are required. The site root opens the complete single-file game. See
+`DEVELOPMENT.md` for local reproduction and validation.
+
+
 ## Final architecture decision
-- Host: Ship.page free static hosting.
+- Host: Netlify static hosting (the game remains compatible with Ship.page).
 - Backend: **none for the current phase**.
 - Do **not** add Supabase or Firebase unless the user explicitly changes this decision later.
 - Persistence: browser/iPad local storage only for now.
