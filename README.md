@@ -1,51 +1,124 @@
-# Food Fight — Codex project
+# EzyPlay
 
-## Start here
-Food Fight is a standalone browser game for iPad/mobile and desktop. The recovered project is intentionally simple: HTML, CSS and JavaScript with no build step required.
+Two original browser games in one lightweight static website:
 
-The primary recovered source is `source/Food_Fight_Classic_Anonymous_Admin.html`. The earlier `source/Food_Fight_Classic_Colour.html` is retained as a fallback reference. Do not overwrite either recovered original when beginning development.
+- **Food Fight** — the existing food-launching arcade and 12-level puzzle game.
+- **Racer** — original low-poly 3D time trials with 12 increasingly technical tracks.
 
-Read `AGENTS.md`, `REQUIREMENTS.md`, and `CODEX_START_PROMPT.md` before modifying code.
+Open the site root to choose a game. Direct routes are `/food-fight/` and
+`/racer/`. Both games include **BACK TO EZYPLAY** navigation. Racer also retains
+its own menus, pause/restart controls and track selection.
 
-## Current release and deployment
-The current playable release is `Food_Fight_Development.html`, including the
-seven-feature expansion and all 12 original puzzle levels. Recovered source
-files remain preserved.
+## Run locally
 
-For Netlify, connect this GitHub repository and select `main` as the production
-branch with the repository root as the base directory. `netlify.toml` copies the
-current game to `dist/index.html` and publishes only `dist`. No build dependencies
-are required. The site root opens the complete single-file game. See
-`DEVELOPMENT.md` for local reproduction and validation.
+From the repository root, with Node 18+ and Python 3 available:
 
+```sh
+node scripts/build.mjs
+python3 -m http.server 8051 --bind 127.0.0.1 --directory dist
+```
 
-## Final architecture decision
-- Host: Netlify static hosting (the game remains compatible with Ship.page).
-- Backend: **none for the current phase**.
-- Do **not** add Supabase or Firebase unless the user explicitly changes this decision later.
-- Persistence: browser/iPad local storage only for now.
-- Prefer a single deployable HTML file unless there is a strong reason to split the project.
+Open the server in your browser. The repository root can also be served directly
+without a build; it contains the same root `index.html` and relative routes.
+ES modules need HTTP(S), so opening Racer directly through a `file:` URL is not
+a supported way to run it. No npm install, framework, server backend or external
+runtime dependency is needed.
 
-## Current implementation
-- Endless Run and Puzzle Mode with 12 puzzle levels.
-- Launcher/food projectile shop, coins, unlocks and equipped items.
-- Pointer/touch controls suitable for iPad/mobile and desktop.
-- Browser-local save using `localStorage`.
-- Anonymous play and a browser-local anonymous-play toggle.
-- Prototype admin login exists in the recovered HTML.
+## Deploy to Cloudflare Pages
 
-## Important limitations
-Because the current project has no backend, features that require shared server data cannot be truly global or secure. This includes real multi-device accounts, global leaderboards, globally enforced admin controls, secure password recovery, shared friend systems and tamper-resistant economy validation.
+Connect this GitHub repository in Cloudflare Pages, then use:
 
-Treat the current login/admin screens as local prototypes only. Never claim a hardcoded client-side password is secure authentication. Do not add secrets, private keys or real passwords to this repository.
+- Framework preset: **None**
+- Production branch: **main** (after reviewing and approving the EzyPlay PR)
+- Build command: **node scripts/build.mjs**
+- Build output directory: **dist**
+- Root directory: repository root
 
-## Development rules
-- Preserve the classic Food Fight look and existing gameplay unless a task specifically changes them.
-- Keep iPad touch controls working.
-- Work incrementally and keep each change testable.
-- Create a development copy before major changes; preserve the recovered originals.
-- Prefer local-only implementations that work on Ship.page without external services.
-- If a requested feature cannot be securely implemented without a backend, explain that clearly and build only a safe local prototype unless the user changes the architecture decision.
+No custom paid domain or server functions are needed. Pages supplies an HTTPS
+`pages.dev` address. If your existing Pages project already watches main with
+automatic deployments enabled, merging the approved PR triggers a production
+build. Branch previews depend on the project's preview settings. No live
+production deployment is claimed until the public URL has been verified.
 
-## Recommended first Codex task
-Audit the primary source without changing it. Create a development copy named `Food_Fight_Development.html`, verify that the existing game still runs, then make one small testable improvement at a time.
+The existing Netlify configuration is retained with its publish directory still
+`dist`. Its build command is necessarily updated to the shared build script;
+the old command would overwrite EzyPlay's landing page with Food Fight. No
+Cloudflare configuration file has been added because no such file is needed.
+Only explicit website files are copied; tests, recorded drives and documentation
+are not published.
+
+## Food Fight preservation
+
+`Food_Fight_Development.html` is the single maintained Food Fight game file.
+It and both recovered HTML originals are unchanged by the EzyPlay expansion.
+The `/food-fight/` wrapper embeds that file at the same origin and adds platform
+navigation without replacing Food Fight's own Home button. Existing modes,
+12 puzzle levels, custom local admin catalogue, coins, rewards, achievements,
+backgrounds and controls remain available.
+
+Food Fight keeps its original storage keys, including `bulletDashSave`,
+`foodFightLocalCatalogueV1` and `foodFightAnonymousPlayEnabled`. Racer uses only
+`ezyplay_racer_v1`. Root/platform navigation does not clear saves. Keep the same
+website origin to retain existing progress: a new domain or separate hosting
+provider does not automatically receive the old browser data. Clearing site data
+can remove saves. All profiles and admin controls remain local prototypes;
+there is no backend, account service or global online state.
+
+Before changing Food Fight, read `AGENTS.md`, `REQUIREMENTS.md`,
+`CODEX_START_PROMPT.md` and `DEVELOPMENT.md`. Never overwrite recovered originals.
+
+## Racer controls
+
+| Action | Keyboard | Touch |
+|---|---|---|
+| Accelerate | W / Up | Hold GO |
+| Brake, then reverse | S / Down | Hold BRAKE / REVERSE |
+| Steer | A / D or Left / Right | Hold LEFT / RIGHT |
+| Restart whole race | R | RESTART |
+| Pause / resume | Escape | PAUSE / RESUME |
+
+Hold steering and a pedal together on iPad. Pointer release/cancel, lost capture,
+blur and page visibility changes release inputs. Losing focus pauses the timer.
+Landscape provides the widest driving view; portrait is also supported.
+Pass checkpoint gates in order. Off-track recovery returns to the last valid
+checkpoint with a three-second penalty. Any legitimate finish earns bronze and
+unlocks the next track; gold/silver reward faster times. Best times and medals
+never decrease. Four vehicle colors and local race statistics are saved.
+
+Racer uses original WebGL 1 geometry and shaders, two batched draw calls, no
+textures, capped device pixel ratio/pixel count, and a 120 Hz fixed physics step.
+Rendering is capped at 60 fps during play and 30 fps in menus, then idle scenes
+stop rendering. Canvas resolution adapts on slow renderers; actual performance
+depends on the device. Unsupported/lost WebGL shows a clear recovery message.
+
+## Verification
+
+```sh
+node tests/racer_foundation.mjs
+node tests/racer_race.mjs
+node tests/racer_progress.mjs
+node tests/racer_tracks.mjs
+```
+
+The track suite drives all 12 courses using actual movement/collision rules,
+then independently replays recorded control streams from
+`tests/racer_paths.json`. It checks the recording's source hash. Regenerate only
+after intentional simulation changes with `node tests/racer_tracks.mjs --record`.
+The development controller is never included in the website.
+
+With the built server running, Python Playwright and system Chromium installed:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 tests/ezyplay_browser.py
+```
+
+`EZYPLAY_BASE_URL` overrides its default server address. This suite checks the
+actual 3D renderer, native keyboard and multitouch, pause/restart, all 12 tracks
+through recorded-input replay in the live game loop, results, unlocks, saves,
+Food Fight isolation and platform navigation. Test-only hooks are injected into
+the browser response; no autoplay or test hook ships in the game.
+
+Food Fight's existing six browser suites remain under `tests/`. Set
+`FOODFIGHT_BASE_URL=http://127.0.0.1:8051` to run against the built game file.
+See `EZYPLAY.md` for verification outcomes and limitations, and `DEVELOPMENT.md`
+for the existing Food Fight feature and storage documentation.

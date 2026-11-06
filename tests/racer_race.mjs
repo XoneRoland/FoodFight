@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {tracks,sampleAt} from '../racer/tracks.mjs';
-import {STEP} from '../racer/physics.mjs';
+import {STEP,createCar} from '../racer/physics.mjs';
 import {RaceSession,formatTime,medalFor} from '../racer/race.mjs';
 const track=tracks[0],r=new RaceSession(track);r.start();
 for(let i=0;i<120;i++)r.step({throttle:1},STEP);
@@ -12,5 +12,11 @@ const before=r.time;r.recover();assert.equal(r.time,before+3);assert.equal(r.rec
 const finish=sampleAt(track,track.finish-1);r.car.x=finish.x;r.car.z=finish.z;r.car.y=finish.y+.65;r.car.s=track.finish-1;
 for(let i=0;i<100;i++)r.step({throttle:1},STEP);assert.notEqual(r.mode,'finished','finish without ordered checkpoints must be rejected');
 r.start();assert.equal(r.time,0);assert.equal(r.nextCheckpoint,0);assert.equal(r.recoveries,0);
+r.start();for(let i=0;i<362;i++)r.step({},STEP);
+r.car.x+=200;const recoveryTime=r.time;for(let i=0;i<180;i++)r.step({},STEP);
+assert.equal(r.recoveries,1);assert(r.time>=recoveryTime+4);assert(Math.abs(r.car.s-(r.lastCheckpoint+.5))<1);
+r.start();for(let i=0;i<362;i++)r.step({},STEP);
+const gate=track.checkpoints[0];r.car=createCar(track,gate+1);const tangent=sampleAt(track,gate+1);r.car.vx=-tangent.tx*10;r.car.vz=-tangent.tz*10;
+for(let i=0;i<30;i++)r.step({brake:1},STEP);assert.equal(r.nextCheckpoint,0,'backward checkpoint crossing is not valid');
 assert.equal(formatTime(83.456),'01:23.456');assert.equal(medalFor(track,track.silver+1),'Bronze');
 console.log('PASS: countdown, pause/resume, penalties, restart, shortcut rejection and timer formatting');

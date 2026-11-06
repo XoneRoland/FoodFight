@@ -12,4 +12,5 @@ assert(car.vz<0,'brake from rest must reverse');
 car=createCar(track);car.x+=100;let result;
 for(let i=0;i<180;i++)result=updateCar(car,track,{},STEP);
 assert(result.recover,'off-track cars need recovery');
+car=createCar(track);car.x=track.width/2-1.15;car.yaw=Math.PI/2;car.vx=18;updateCar(car,track,{},STEP);assert(car.x<=track.width/2-1.1+.001);assert(car.wallHits>0);assert(car.vx<1);
 console.log('PASS: continuous first track, acceleration, steering, reverse and recovery signal');

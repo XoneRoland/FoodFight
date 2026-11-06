@@ -32,7 +32,7 @@ export function buildTrack(def){
   const steps=Math.max(10,Math.ceil(Math.hypot(c.x-b.x,c.z-b.z)/1.7));
   for(let j=0;j<steps;j++){const t=j/steps;samples.push({x:spline(a.x,b.x,c.x,d.x,t),z:spline(a.z,b.z,c.z,d.z,t),y:spline(a.y,b.y,c.y,d.y,t)})}
  }
- samples.push({...points.at(-1)});
+ samples.push({...points[points.length-1]});
  let length=0;
  for(let i=0;i<samples.length;i++){if(i)length+=Math.hypot(samples[i].x-samples[i-1].x,samples[i].z-samples[i-1].z);samples[i].s=length}
  for(const p of samples)for(const ramp of def.ramps||[]){

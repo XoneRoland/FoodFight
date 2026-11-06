@@ -1,4 +1,4 @@
-import { sampleAt } from './tracks.mjs';
+import { sampleAt,nearestRoad } from './tracks.mjs';
 const color=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255);
 const sub=(a,b)=>a.map((n,i)=>n-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -21,7 +21,12 @@ function createCarGeometry(hex){const g=new Geometry();g.box(0,.15,0,2.15,.55,4,
 function createWorld(track){
  const g=new Geometry(),theme=track.theme,p=track.samples;
  const xs=p.map(v=>v.x),zs=p.map(v=>v.z),cx=(Math.min(...xs)+Math.max(...xs))/2,cz=(Math.min(...zs)+Math.max(...zs))/2;
- g.box(cx,-2,cz,1800,2,1800,track.id===2?'#559fb5':theme.ground);
+ // Ground is tiled so vertex fog does not treat the entire nearby surface as
+ // distant sky just because a giant triangle's corners are far away.
+ for(let ix=-12;ix<12;ix++)for(let iz=-12;iz<12;iz++){
+  const x=cx+ix*75,z=cz+iz*75;
+  g.quad([x,-1,z],[x,-1,z+75],[x+75,-1,z+75],[x+75,-1,z],track.id===2?'#559fb5':theme.ground);
+ }
  for(let i=0;i<p.length-1;i++){
   const a=p[i],b=p[i+1],w=track.width/2,at=(v,offset,y=0)=>[v.x+v.nx*offset,v.y+y,v.z+v.nz*offset];
   if(track.id===2)g.quad(at(a,-w-7,-.9),at(b,-w-7,-.9),at(b,w+7,-.9),at(a,w+7,-.9),theme.ground);
@@ -45,11 +50,12 @@ function createWorld(track){
  }
  for(let i=0;i<70;i++){
   const a=sampleAt(track,8+(track.length-16)*(i/70)),side=i%2?1:-1,d=track.width/2+10+(i*17%25),x=a.x+a.nx*d*side,z=a.z+a.nz*d*side;
+  if(nearestRoad(track,x,z).distance<track.width/2+5)continue;
   if(track.id!==2&&(track.theme.ground==='#487660'||track.theme.ground==='#6cae83'||track.theme.ground==='#718b8e')){
    g.box(x,a.y-1,z,.65,3,.65,'#795a50');g.cone(x,a.y,z,2.5,6,i%2?'#376b60':'#4d8d75');
   }else g.cone(x,a.y-3,z,2+(i%3),3+(i%4),i%2?theme.accent:theme.ground);
  }
- for(let i=0;i<18;i++){const a=sampleAt(track,track.length*i/18),side=i%2?1:-1,d=track.width/2+65+(i%3)*20;g.cone(a.x+a.nx*d*side,-1,a.z+a.nz*d*side,25+i%4*7,35+i%3*13,theme.ground,5)}
+ for(let i=0;i<18;i++){const a=sampleAt(track,track.length*i/18),side=i%2?1:-1,d=track.width/2+65+(i%3)*20;{const x=a.x+a.nx*d*side,z=a.z+a.nz*d*side,r=25+i%4*7;if(nearestRoad(track,x,z).distance>r+track.width/2+5)g.cone(x,-1,z,r,35+i%3*13,theme.ground,5)}}
  return g;
 }
 export class Renderer{
@@ -61,20 +67,26 @@ export class Renderer{
   const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s};
   this.program=gl.createProgram();gl.attachShader(this.program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(this.program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(this.program);if(!gl.getProgramParameter(this.program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(this.program));
   this.uniforms=Object.fromEntries(['uVP','uModel','uEye','uSky'].map(n=>[n,gl.getUniformLocation(this.program,n)]));this.attributes=['aPosition','aNormal','aColor'].map(n=>gl.getAttribLocation(this.program,n));
-  gl.enable(gl.DEPTH_TEST);this.camera=null;this.info={drawCalls:0,vertices:0,frames:0};
+  gl.enable(gl.DEPTH_TEST);this.camera=null;this.scale=1;this.slowFrames=0;this.fastFrames=0;this.info={drawCalls:0,vertices:0,frames:0,scale:1};
  }
  upload(geometry){const gl=this.gl,buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(geometry.data),gl.STATIC_DRAW);return {buffer,count:geometry.data.length/9}}
  setTrack(track,car,hex='#46d9ff'){if(this.world)this.gl.deleteBuffer(this.world.buffer);this.world=this.upload(createWorld(track));this.track=track;this.setColor(hex);this.camera=null;this.render(car,0,true)}
- setColor(hex){if(this.car)this.gl.deleteBuffer(this.car.buffer);this.car=this.upload(createCarGeometry(hex))}
- resize(){const w=this.canvas.clientWidth,h=this.canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,1.5,Math.sqrt(1400000/Math.max(1,w*h)));const width=Math.max(1,Math.floor(w*dpr)),height=Math.max(1,Math.floor(h*dpr));if(this.canvas.width!==width||this.canvas.height!==height){this.canvas.width=width;this.canvas.height=height}this.gl.viewport(0,0,width,height)}
+ setColor(hex){this.dirty=true;if(this.car)this.gl.deleteBuffer(this.car.buffer);this.car=this.upload(createCarGeometry(hex))}
+ resize(){const w=this.canvas.clientWidth,h=this.canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,1.5,Math.sqrt(1400000/Math.max(1,w*h)))*this.scale;const width=Math.max(1,Math.floor(w*dpr)),height=Math.max(1,Math.floor(h*dpr));if(this.canvas.width!==width||this.canvas.height!==height){this.canvas.width=width;this.canvas.height=height}this.gl.viewport(0,0,width,height)}
  draw(mesh,transform){const gl=this.gl;gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);for(let i=0;i<3;i++){gl.enableVertexAttribArray(this.attributes[i]);gl.vertexAttribPointer(this.attributes[i],3,gl.FLOAT,false,36,i*12)}gl.uniformMatrix4fv(this.uniforms.uModel,false,transform);gl.drawArrays(gl.TRIANGLES,0,mesh.count);this.info.drawCalls++;this.info.vertices+=mesh.count}
  render(car,dt=1/60,snap=false){
-  if(!this.track)return;this.resize();const f=[Math.sin(car.yaw),Math.cos(car.yaw)],desired=[car.x-f[0]*14,car.y+7.8,car.z-f[1]*14];
+  if(!this.track)return;
+  // Lower only canvas resolution on slow renderers; physics and HTML controls
+  // retain their original precision and size. Recover quality gradually.
+  if(dt>.045){this.slowFrames++;this.fastFrames=0}else{this.fastFrames++;this.slowFrames=Math.max(0,this.slowFrames-1)}
+  if(this.slowFrames>=12){this.scale=Math.max(.5,this.scale*.8);this.slowFrames=0}
+  if(this.fastFrames>240&&dt<.021){this.scale=Math.min(1,this.scale+.05);this.fastFrames=0}
+  this.info.scale=this.scale;this.resize();const f=[Math.sin(car.yaw),Math.cos(car.yaw)],desired=[car.x-f[0]*14,car.y+7.8,car.z-f[1]*14];
   if(!this.camera||snap)this.camera=desired;else for(let i=0;i<3;i++)this.camera[i]+=(desired[i]-this.camera[i])*(1-Math.exp(-6*dt));
   const target=[car.x+f[0]*13,car.y+1.1,car.z+f[1]*13],gl=this.gl,sky=color(this.track.theme.sky);
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(this.program);
   gl.uniformMatrix4fv(this.uniforms.uVP,false,multiply(perspective(this.canvas.width/this.canvas.height),lookAt(this.camera,target)));
   gl.uniform3fv(this.uniforms.uEye,this.camera);gl.uniform3fv(this.uniforms.uSky,sky);this.info.drawCalls=0;this.info.vertices=0;
-  this.draw(this.world,identity);this.draw(this.car,model(car));this.info.frames++;
+  this.draw(this.world,identity);this.draw(this.car,model(car));this.info.frames++;this.dirty=false;
  }
 }

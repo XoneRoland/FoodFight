@@ -19,7 +19,7 @@ export function loadProgress(storage){try{return normalizeProgress(JSON.parse((s
 export function saveProgress(progress,storage){try{(storage||globalThis.localStorage).setItem(SAVE_KEY,JSON.stringify(progress));return true}catch{return false}}
 export function applyResult(progress,track,result){
  if(result.track!==track.id||!Number.isFinite(result.time)||result.time<=0)throw Error('Invalid race result');
- const next=structuredClone(progress),old=next.bestTimes[track.id];
+ const next=JSON.parse(JSON.stringify(progress)),old=next.bestTimes[track.id];
  if(!old||result.time<old)next.bestTimes[track.id]=result.time;
  const rank={Bronze:1,Silver:2,Gold:3},medal=medalFor(track,result.time);
  if(!next.medals[track.id]||rank[medal]>rank[next.medals[track.id]])next.medals[track.id]=medal;

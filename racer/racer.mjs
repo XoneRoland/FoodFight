@@ -7,6 +7,7 @@ import {Controls} from './controls.mjs';
 const $=id=>document.getElementById(id),screens=['menu','trackMenu','help','pauseMenu','result'];
 let progress=loadProgress(),current=progress.unlocked-1,session=new RaceSession(tracks[current]),renderer,noticeTimer;
 let attempted=false,finished=false,accounted={distance:0,airtime:0,recoveries:0};
+function text(id,value){if($(id).textContent!==value)$(id).textContent=value}
 function notify(text){$('notice').textContent=text;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('notice').textContent='',2600)}
 function view(screen){for(const id of screens)$(id).hidden=id!==screen;const active=['countdown','racing','paused'].includes(session.mode);$('hud').hidden=!active;$('driveControls').hidden=!active||session.mode==='paused';if(screen)$('countdown').textContent=''}
 try{renderer=new Renderer($('scene'));renderer.setTrack(session.track,session.car,progress.color)}catch(error){$('graphicsMessage').textContent=error.message;$('graphicsError').hidden=false;$('playButton').disabled=true}
@@ -69,15 +70,17 @@ function advance(){
  if(mode==='countdown'&&session.mode==='racing'&&!attempted){attempted=true;progress.stats.attempts++;persist()}
  if(mode!=='finished'&&session.mode==='finished')finish();
 }
-let last=performance.now(),lastRender=0,acc=0;
+addEventListener('resize',()=>{if(renderer)renderer.dirty=true});
+let last=performance.now(),lastRender=0,acc=0,idleUntil=0,lastMode=session.mode;
 function frame(now){
  const dt=Math.min((now-last)/1000,.12);last=now;acc+=dt;
- while(acc>=STEP){advance();acc-=STEP}
+ if(session.mode!==lastMode){idleUntil=now+800;lastMode=session.mode}
+ while(acc>=STEP){if(['countdown','racing'].includes(session.mode))advance();acc-=STEP}
  const renderingActive=['countdown','racing'].includes(session.mode),interval=renderingActive?1000/60:1000/30;
- if(renderer&&!renderer.gl.isContextLost()&&now-lastRender>=interval-1){renderer.render(session.car,Math.min(.1,(now-lastRender)/1000));lastRender=now}
- $('timer').textContent=formatTime(session.time);$('speed').textContent=Math.round(Math.hypot(session.car.vx,session.car.vz)*3.6)+' KM/H';
- $('checkpointLabel').textContent='CHECKPOINTS '+session.nextCheckpoint+' / '+session.track.checkpoints.length;
- $('countdown').textContent=session.mode==='countdown'?String(Math.max(1,Math.ceil(session.remaining))):session.mode==='racing'&&session.goTime>0?'GO!':'';
+ if(renderer&&!renderer.gl.isContextLost()&&(renderingActive||now<idleUntil||renderer.dirty)&&now-lastRender>=interval-1){renderer.render(session.car,Math.min(.1,(now-lastRender)/1000));lastRender=now}
+ text('timer',formatTime(session.time));text('speed',Math.round(Math.hypot(session.car.vx,session.car.vz)*3.6)+' KM/H');
+ text('checkpointLabel','CHECKPOINTS '+session.nextCheckpoint+' / '+session.track.checkpoints.length);
+ text('countdown',session.mode==='countdown'?String(Math.max(1,Math.ceil(session.remaining))):session.mode==='racing'&&session.goTime>0?'GO!':'');
  requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
