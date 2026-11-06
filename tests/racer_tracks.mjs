@@ -19,5 +19,12 @@ for(const track of tracks){
  records.push(record);
 }
 const hash=createHash('sha256');for(const file of ['../racer/physics.mjs','../racer/race.mjs','../racer/tracks.mjs','racer_driver.mjs'])hash.update(await readFile(new URL(file,import.meta.url)));
-if(process.argv.includes('--record'))await writeFile(new URL('racer_paths.json',import.meta.url),JSON.stringify({version:1,step:STEP,sourceSha256:hash.digest('hex'),driver:'pure-pursuit-v1',records}));
+const sourceSha256=hash.digest('hex');
+if(!process.argv.includes('--record')){
+ const saved=JSON.parse(await readFile(new URL('racer_paths.json',import.meta.url),'utf8'));
+ assert.equal(saved.sourceSha256,sourceSha256,'Recorded driving paths must match current simulation sources');
+ assert.equal(saved.records.length,tracks.length);
+ for(const record of saved.records){const replay=new RaceSession(tracks.find(t=>t.id===record.id));replay.start();for(const [count,throttle,brake,steer] of record.controls)for(let i=0;i<count;i++)replay.step({throttle,brake,steer},STEP);assert.equal(replay.mode,'finished');assert(Math.abs(replay.time-record.time)<.001);assert.equal(replay.recoveries,0)}
+}
+if(process.argv.includes('--record'))await writeFile(new URL('racer_paths.json',import.meta.url),JSON.stringify({version:1,step:STEP,sourceSha256,driver:'pure-pursuit-v1',records}));
 console.log('PASS: geometry, actual driving and control-stream replay for '+tracks.length+' tracks');
