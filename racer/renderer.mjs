@@ -21,9 +21,11 @@ function createCarGeometry(hex){const g=new Geometry();g.box(0,.15,0,2.15,.55,4,
 function createWorld(track){
  const g=new Geometry(),theme=track.theme,p=track.samples;
  const xs=p.map(v=>v.x),zs=p.map(v=>v.z),cx=(Math.min(...xs)+Math.max(...xs))/2,cz=(Math.min(...zs)+Math.max(...zs))/2;
- g.box(cx,-2,cz,1800,2,1800,theme.ground);
+ g.box(cx,-2,cz,1800,2,1800,track.id===2?'#559fb5':theme.ground);
  for(let i=0;i<p.length-1;i++){
   const a=p[i],b=p[i+1],w=track.width/2,at=(v,offset,y=0)=>[v.x+v.nx*offset,v.y+y,v.z+v.nz*offset];
+  if(track.id===2)g.quad(at(a,-w-7,-.9),at(b,-w-7,-.9),at(b,w+7,-.9),at(a,w+7,-.9),theme.ground);
+  if(i%24===0&&a.y>3)g.box(a.x,(a.y-1)/2,a.z,1.1,a.y+1,1.1,'#6c7b96');
   g.quad(at(a,-w),at(b,-w),at(b,w),at(a,w),theme.road);
   for(const side of [-1,1]){
    const e=w*side,inside=e-side*.25;
@@ -36,14 +38,14 @@ function createWorld(track){
  }
  for(const [index,s] of [[-1,6],...track.checkpoints.map((s,i)=>[i,s]),[99,track.finish]]){
   const a=sampleAt(track,s),w=track.width/2,accent=index===99?'#ffdb79':index===-1?'#7cecff':theme.accent;
-  for(const side of [-1,1])g.box(a.x+a.nx*(w+.4)*side,a.y+2.8,a.z+a.nz*(w+.4)*side,.7,5.6,.7,accent);
+  for(const side of [-1,1])g.box(a.x+a.nx*(w+.4)*side,a.y+3.6,a.z+a.nz*(w+.4)*side,.7,7.2,.7,accent);
   const at=(d,forward,y)=>[a.x+a.nx*d+a.tx*forward,a.y+y,a.z+a.nz*d+a.tz*forward];
-  g.quad(at(-w,0,5.1),at(w,0,5.1),at(w,.6,5.1),at(-w,.6,5.1),accent);
+  g.quad(at(-w,0,7),at(w,0,7),at(w,.6,7),at(-w,.6,7),accent);
   for(let n=0;n<10;n++){const left=-w+n*track.width/10,right=left+track.width/10;g.quad(at(left,-.8,.05),at(left,.8,.05),at(right,.8,.05),at(right,-.8,.05),index===99?(n%2?'#20293c':'#fbfcff'):accent)}
  }
  for(let i=0;i<70;i++){
   const a=sampleAt(track,8+(track.length-16)*(i/70)),side=i%2?1:-1,d=track.width/2+10+(i*17%25),x=a.x+a.nx*d*side,z=a.z+a.nz*d*side;
-  if(track.theme.ground==='#487660'||track.theme.ground==='#6cae83'||track.theme.ground==='#718b8e'){
+  if(track.id!==2&&(track.theme.ground==='#487660'||track.theme.ground==='#6cae83'||track.theme.ground==='#718b8e')){
    g.box(x,a.y-1,z,.65,3,.65,'#795a50');g.cone(x,a.y,z,2.5,6,i%2?'#376b60':'#4d8d75');
   }else g.cone(x,a.y-3,z,2+(i%3),3+(i%4),i%2?theme.accent:theme.ground);
  }

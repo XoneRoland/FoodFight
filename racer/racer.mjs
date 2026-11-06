@@ -60,11 +60,21 @@ for(const color of carColors){
 for(const link of document.querySelectorAll('a[href="../"]'))link.addEventListener('click',()=>{controls.clear();flushStats()});
 addEventListener('pagehide',()=>{controls.clear();flushStats()});
 updateSummary();
-let last=performance.now(),acc=0;
+// This step is shared by the live frame loop; tests replay ordinary control
+// inputs through it rather than teleporting cars or forcing a result.
+function advance(){
+ const mode=session.mode,recoveries=session.recoveries;
+ session.step(controls.value(),STEP);
+ if(session.recoveries>recoveries){controls.clear();if(renderer)renderer.camera=null;notify('Back to checkpoint · +3 seconds')}
+ if(mode==='countdown'&&session.mode==='racing'&&!attempted){attempted=true;progress.stats.attempts++;persist()}
+ if(mode!=='finished'&&session.mode==='finished')finish();
+}
+let last=performance.now(),lastRender=0,acc=0;
 function frame(now){
  const dt=Math.min((now-last)/1000,.12);last=now;acc+=dt;
- while(acc>=STEP){const mode=session.mode,recoveries=session.recoveries;session.step(controls.value(),STEP);if(session.recoveries>recoveries){controls.clear();renderer.camera=null;notify('Back to checkpoint · +3 seconds')}if(mode==='countdown'&&session.mode==='racing'&&!attempted){attempted=true;progress.stats.attempts++;persist()}if(mode!=='finished'&&session.mode==='finished')finish();acc-=STEP}
- if(renderer&&!renderer.gl.isContextLost())renderer.render(session.car,dt);
+ while(acc>=STEP){advance();acc-=STEP}
+ const renderingActive=['countdown','racing'].includes(session.mode),interval=renderingActive?1000/60:1000/30;
+ if(renderer&&!renderer.gl.isContextLost()&&now-lastRender>=interval-1){renderer.render(session.car,Math.min(.1,(now-lastRender)/1000));lastRender=now}
  $('timer').textContent=formatTime(session.time);$('speed').textContent=Math.round(Math.hypot(session.car.vx,session.car.vz)*3.6)+' KM/H';
  $('checkpointLabel').textContent='CHECKPOINTS '+session.nextCheckpoint+' / '+session.track.checkpoints.length;
  $('countdown').textContent=session.mode==='countdown'?String(Math.max(1,Math.ceil(session.remaining))):session.mode==='racing'&&session.goTime>0?'GO!':'';
