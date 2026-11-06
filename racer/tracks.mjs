@@ -1,6 +1,8 @@
 // Original point-to-point courses. Coordinates are [x, z, height].
 export const definitions=[
- {id:1,name:'First Gear',difficulty:'Beginner',width:21,points:[[0,0],[0,80],[22,155],[85,210],[105,290],[80,370],[80,440]],theme:'coast',ramps:[]}
+ {id:1,name:'First Gear',difficulty:'Beginner',width:21,points:[[0,0],[0,80],[22,155],[85,210],[105,290],[80,370],[80,440]],theme:'coast',ramps:[]},
+ {id:2,name:'Coastal Sprint',difficulty:'Easy',width:20,points:[[0,0],[0,75],[65,130],[150,140],[220,200],[210,280],[140,340],[90,410],[110,480]],theme:'coast',ramps:[]},
+ {id:3,name:'Desert Dash',difficulty:'Easy',width:19,points:[[0,0],[0,140],[-55,230],[-140,260],[-225,320],[-200,420],[-100,470],[-75,580]],theme:'desert',ramps:[]}
 ];
 export const themes={
  coast:{sky:'#94d9ef',ground:'#6cae83',road:'#3b4862',edge:'#eff4ff',accent:'#52e1ff'},
