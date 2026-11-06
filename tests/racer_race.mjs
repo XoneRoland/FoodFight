@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {tracks,sampleAt} from '../racer/tracks.mjs';
+import {STEP} from '../racer/physics.mjs';
+import {RaceSession,formatTime,medalFor} from '../racer/race.mjs';
+const track=tracks[0],r=new RaceSession(track);r.start();
+for(let i=0;i<120;i++)r.step({throttle:1},STEP);
+assert.equal(r.mode,'countdown');assert.equal(r.time,0);assert.equal(r.car.s,6);
+r.pause();const remaining=r.remaining;for(let i=0;i<120;i++)r.step({},STEP);assert.equal(r.remaining,remaining);
+r.resume();for(let i=0;i<250;i++)r.step({throttle:1},STEP);assert.equal(r.mode,'racing');assert(r.time>0);
+r.pause();const time=r.time;r.step({throttle:1},1);assert.equal(r.time,time);r.resume();
+const before=r.time;r.recover();assert.equal(r.time,before+3);assert.equal(r.recoveries,1);
+const finish=sampleAt(track,track.finish-1);r.car.x=finish.x;r.car.z=finish.z;r.car.y=finish.y+.65;r.car.s=track.finish-1;
+for(let i=0;i<100;i++)r.step({throttle:1},STEP);assert.notEqual(r.mode,'finished','finish without ordered checkpoints must be rejected');
+r.start();assert.equal(r.time,0);assert.equal(r.nextCheckpoint,0);assert.equal(r.recoveries,0);
+assert.equal(formatTime(83.456),'01:23.456');assert.equal(medalFor(track,track.silver+1),'Bronze');
+console.log('PASS: countdown, pause/resume, penalties, restart, shortcut rejection and timer formatting');
