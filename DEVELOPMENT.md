@@ -248,3 +248,13 @@ FOODFIGHT_BASE_URL=http://127.0.0.1:8040 FOODFIGHT_GAME_PATH=/ python3 tests/exp
 The configuration does not add levels: the current release includes the original
 12 puzzle levels plus the seven-feature expansion. An external deployment is
 confirmed only after its public URL has been checked.
+
+## EzyPlay platform integration
+
+The current platform entry point is now root `index.html`. Build with
+`node scripts/build.mjs`; output remains `dist`, containing EzyPlay, Racer, the
+same-origin Food Fight wrapper and the unmodified canonical Food Fight HTML.
+The previous direct-copy Netlify instructions above describe the older
+Food Fight-only deployment. Use the current README and EZYPLAY.md for platform
+routes, Cloudflare Pages settings and validation. Food Fight itself and its
+storage keys have not been changed by this integration.

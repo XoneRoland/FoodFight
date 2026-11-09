@@ -45,10 +45,10 @@ with sync_playwright() as p:
    start={'x':110,'y':h*.52}
    cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[start]})
    for step in range(1,7):
-    page.wait_for_timeout(20)
+    page.wait_for_timeout(80)
     point={k:start[k]+(target[k]-start[k])*step/6 for k in ('x','y')}
     cdp.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[point]})
-   page.wait_for_timeout(20)
+   page.wait_for_timeout(80)
    cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
    cdp.detach()
   page.wait_for_function("document.getElementById('resultScreen').classList.contains('active')")

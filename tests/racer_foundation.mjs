@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {tracks,validateTrack} from '../racer/tracks.mjs';
+import {createCar,updateCar,STEP} from '../racer/physics.mjs';
+const track=tracks[0];assert.equal(validateTrack(track).valid,true);
+let car=createCar(track);
+for(let i=0;i<240;i++)updateCar(car,track,{throttle:1},STEP);
+assert(car.z>25);assert(car.vz>15);
+for(let i=0;i<60;i++)updateCar(car,track,{throttle:1,steer:1},STEP);
+assert(car.yaw>.2);assert(car.x>0);
+car=createCar(track);for(let i=0;i<120;i++)updateCar(car,track,{brake:1},STEP);
+assert(car.vz<0,'brake from rest must reverse');
+car=createCar(track);car.x+=100;let result;
+for(let i=0;i<180;i++)result=updateCar(car,track,{},STEP);
+assert(result.recover,'off-track cars need recovery');
+car=createCar(track);car.x=track.width/2-1.15;car.yaw=Math.PI/2;car.vx=18;updateCar(car,track,{},STEP);assert(car.x<=track.width/2-1.1+.001);assert(car.wallHits>0);assert(car.vx<1);
+console.log('PASS: continuous first track, acceleration, steering, reverse and recovery signal');
