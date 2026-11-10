@@ -1,5 +1,11 @@
 # EzyPlay implementation record
 
+This records the original EzyPlay integration. The later Netlify registration
+update intentionally changes Food Fight's guest/admin interface and adds a
+privacy page; all Racer files and Food Fight's gameplay/save handlers remain
+unchanged from integration commit b20444e. See `NETLIFY_FORMS.md` for current
+registration behavior and verification limits.
+
 Baseline: a299daa. Dedicated branch: feature/ezyplay-racer. Food Fight's canonical
 HTML and all recovered files remain unchanged. /food-fight/ embeds that file at
 the same origin, retaining bulletDashSave and the local catalogue keys. Racer

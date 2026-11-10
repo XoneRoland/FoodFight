@@ -19,7 +19,11 @@ window.__racerTest={
 };
 '''
 records=json.loads((ROOT/'tests/racer_paths.json').read_text())['records']
-assert (ROOT/'Food_Fight_Development.html').read_bytes()==subprocess.check_output(['git','show','c5dd2e60e9cff4beb6f52d7302acb47d4a20bba1:Food_Fight_Development.html'],cwd=ROOT)
+food_source=(ROOT/'Food_Fight_Development.html').read_text()
+food_baseline=subprocess.check_output(['git','show','b20444e:Food_Fight_Development.html'],cwd=ROOT,text=True)
+# Registration UI intentionally changes; gameplay, shop, saves and touch handlers do not.
+for s in [food_source,food_baseline]:assert 'let W=' in s and 'function drawActivePlayer()' in s
+assert food_source.split('let W=',1)[1].split('function drawActivePlayer()',1)[0]==food_baseline.split('let W=',1)[1].split('function drawActivePlayer()',1)[0]
 source=(ROOT/'racer/racer.mjs').read_text()
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
@@ -122,8 +126,7 @@ with sync_playwright() as p:
   page.goto(BASE+'/food-fight/')
   frame=page.frame_locator('iframe')
   frame.locator('#guestPlayButton').tap()
-  frame.locator('#guestFirstName').fill('Test');frame.locator('#guestLastName').fill('Player');frame.locator('#guestUsername').fill('tester')
-  frame.locator('#guestForm button[type=submit]').tap();frame.locator('#puzzleButton').tap();frame.locator('#levelCards button').first.tap()
+  frame.locator('#guestSkip').tap();frame.locator('#puzzleButton').tap();frame.locator('#levelCards button').first.tap()
   box=frame.locator('#game').bounding_box();fw,fh=box['width'],box['height']
   begin={'x':box['x']+min(110,fw*.15),'y':box['y']+fh*.52}
   target={'x':box['x']+fw*.78,'y':box['y']+74+.4*(fh-142)}

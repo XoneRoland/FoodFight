@@ -29,8 +29,9 @@ python3 -m http.server 8051 --bind 127.0.0.1 --directory dist
 Open the server in your browser. The repository root can also be served directly
 without a build; it contains the same root `index.html` and relative routes.
 ES modules need HTTP(S), so opening Racer directly through a `file:` URL is not
-a supported way to run it. No npm install, framework, server backend or external
-runtime dependency is needed.
+a supported way to run it. No npm install, framework or external runtime
+dependency is needed. Optional nickname registration uses Netlify Forms on
+Netlify hosting; playing without registering needs no submission service.
 
 ## Deploy to Cloudflare Pages
 
@@ -58,7 +59,10 @@ are not published.
 ## Food Fight preservation
 
 `Food_Fight_Development.html` is the single maintained Food Fight game file.
-It and both recovered HTML originals are unchanged by the EzyPlay expansion.
+It and both recovered HTML originals were unchanged by the EzyPlay expansion.
+The subsequent optional registration update changes only Food Fight's guest
+entry and local admin interface; its gameplay, saves and recovered originals
+remain preserved.
 The `/food-fight/` wrapper embeds that file at the same origin and adds platform
 navigation without replacing Food Fight's own Home button. Existing modes,
 12 puzzle levels, custom local admin catalogue, coins, rewards, achievements,
@@ -69,8 +73,24 @@ Food Fight keeps its original storage keys, including `bulletDashSave`,
 `ezyplay_racer_v1`. Root/platform navigation does not clear saves. Keep the same
 website origin to retain existing progress: a new domain or separate hosting
 provider does not automatically receive the old browser data. Clearing site data
-can remove saves. All profiles and admin controls remain local prototypes;
-there is no backend, account service or global online state.
+can remove saves. Profiles and admin controls remain local prototypes. Optional
+consenting nickname registrations are stored privately by Netlify Forms, not
+in browser saves or a public list. There is no account service or shared game state.
+
+## Optional guest registration on Netlify
+
+Food Fight's **Play Anonymously** screen offers **Play without registering**, or
+an unchecked consent choice to submit only a nickname to the administrator.
+First/last names, emails and passwords are not requested. Existing gameplay
+saves are unchanged. The local admin screen links to the signed-in Netlify
+Forms dashboard; its prototype password is not secure authentication.
+
+For project **ezygame**, enable Form Detection at
+<https://app.netlify.com/projects/ezygame/forms>, then deploy this version.
+View consenting entries under **Forms → ezyplay-guest-registration**. Follow
+[NETLIFY_FORMS.md](NETLIFY_FORMS.md) for setup, delivery testing and manual
+deletion within 30 days. The public notice is [privacy.html](privacy.html).
+Cloudflare Pages can still host both games, but does not process Netlify Forms.
 
 Before changing Food Fight, read `AGENTS.md`, `REQUIREMENTS.md`,
 `CODEX_START_PROMPT.md` and `DEVELOPMENT.md`. Never overwrite recovered originals.

@@ -111,7 +111,12 @@ text-safe rendering, coin/item redemption, purchase/equip, reload persistence,
 gameplay rendering with custom equipment and storage-write failure recovery.
 Physical iPad/Safari testing remains necessary before release.
 
-## Guest player details
+## Guest player details (historical)
+
+Superseded by the optional Netlify registration update documented in
+`NETLIFY_FORMS.md`: first/last names have been removed, nickname submission
+requires explicit consent, and **Play without registering** sends nothing.
+The description below records the earlier local prototype.
 
 **PLAY ANONYMOUSLY** now opens a form for first name, last name and username
 before enabling gameplay. Names are required (up to 40 characters each);

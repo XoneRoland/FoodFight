@@ -25,6 +25,7 @@ h1{font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:1.5px;margin-bo
 .featureList{display:grid;gap:12px;margin-top:18px;text-align:left}.featureCard{padding:16px;border:1px solid #465a78;border-radius:14px;background:#151d2b}.featureCard p{color:var(--muted);margin:8px 0;line-height:1.4}.featureCard button{min-height:44px}.featureButtons{margin-top:14px}.featureButtons button{font-size:13px;padding:10px}.stars{color:var(--gold);letter-spacing:2px}
 body[data-background=kitchen]{background:radial-gradient(ellipse at 15% 10%,#67452e,transparent 50%),#28201b}body[data-background=midnight]{background:radial-gradient(ellipse at 80% 12%,#263256,transparent 50%),#080d19}
 #comboIndicator{position:fixed;z-index:5;top:110px;left:50%;transform:translateX(-50%);padding:8px 12px;border:1px solid #ffc94a88;border-radius:10px;background:#151d2bea;color:var(--gold);font-weight:850;pointer-events:none;text-align:center}
+.consent-row{display:flex!important;align-items:flex-start;gap:12px;line-height:1.5;cursor:pointer}.adminForm .consent-row input{width:22px;height:22px;flex-shrink:0;margin:2px 0 0}.smallNote a{text-decoration:underline;color:#9ce9ff}.dashboard-link{display:inline-block;margin-top:12px;padding:14px;border:1px solid #7289ac;border-radius:12px;color:#b9eaff;font-weight:800;text-decoration:none;touch-action:manipulation;min-height:48px}.dashboard-link:focus-visible{outline:3px solid #83e9ff;outline-offset:3px}
 </style>
 </head>
 <body>
@@ -35,14 +36,15 @@ body[data-background=kitchen]{background:radial-gradient(ellipse at 15% 10%,#674
 
 <section class="screen active" id="homeScreen"><div class="panel"><h1>FOOD<br><span style="color:#f4c542">FIGHT!</span></h1><p class="sub">Pick your launcher. Pick your food. Make a delicious mess!</p><div class="row" style="margin:12px 0"><button class="primary" id="guestPlayButton">PLAY ANONYMOUSLY</button><button id="adminOpenButton">ADMIN PANEL</button><button id="endGuestSession" class="hidden">END SESSION</button></div><p class="smallNote" id="guestStatus" aria-live="polite">Choose Play Anonymously to start. Your progress stays on this device.</p><div class="stats"><div class="stat" id="highScoreText">High score: <strong>0</strong></div><div class="stat" id="coinsText">Coins: <strong>0</strong></div><div class="stat" id="progressText">Puzzle levels: <strong>0/12</strong></div></div><div class="menuButtons"><button class="primary" id="endlessButton" disabled>ENDLESS RUN</button><button class="gold" id="puzzleButton" disabled>PUZZLE MODE</button><button id="shopButton" disabled>LAUNCHER & FOOD SHOP</button><button id="levelsButton" disabled>LEVEL SELECT</button></div><div class="row featureButtons"><button id="dailyButton" disabled>DAILY REWARDS</button><button id="missionsButton" disabled>DAILY MISSIONS</button><button id="achievementsButton" disabled>ACHIEVEMENTS</button><button id="statisticsButton" disabled>STATISTICS</button></div><p class="smallNote">Drag to dodge in Endless Run. In Puzzle Mode, drag to aim and launch your food!</p></div></section>
 
-<section class="screen" id="guestScreen"><div class="panel"><h2>LET’S PLAY!</h2><p class="sub">Enter your player details for this local guest session.</p>
-<form id="guestForm" class="adminForm">
-<label for="guestFirstName">First name</label><input id="guestFirstName" name="given-name" autocomplete="given-name" maxlength="40" required>
-<label for="guestLastName">Last name</label><input id="guestLastName" name="family-name" autocomplete="family-name" maxlength="40" required>
-<label for="guestUsername">Username</label><input id="guestUsername" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" aria-describedby="guestUsernameHelp" required>
-<p id="guestUsernameHelp" class="smallNote">Use 3–24 letters, numbers or underscores. Your name and username appear in this tab’s local admin panel. These are not online accounts.</p>
-<p class="smallNote">Player details last until you reload or end the session. Game progress and coins are shared in this browser.</p>
-<p id="guestFormStatus" class="formStatus" role="status"></p><div class="row"><button class="primary" type="submit">START PLAYING</button><button id="guestCancel" type="button">CANCEL</button></div>
+<section class="screen" id="guestScreen"><div class="panel"><h2>LET’S PLAY!</h2><p class="sub">Guest registration is optional. Play here without sending any details, or share a nickname with the EzyPlay administrator.</p>
+<form id="guestForm" name="ezyplay-guest-registration" method="POST" action="./" data-netlify="true" netlify-honeypot="bot-field" class="adminForm">
+<input type="hidden" name="form-name" value="ezyplay-guest-registration">
+<p hidden aria-hidden="true"><label>Leave this empty<input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+<label for="guestUsername">Nickname or username</label><input id="guestUsername" name="nickname" autocomplete="off" autocapitalize="none" spellcheck="false" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" aria-describedby="guestUsernameHelp guestPrivacy" required>
+<p id="guestUsernameHelp" class="smallNote">Use 3–24 letters, numbers or underscores. Choose a nickname, not your real name. No email or password is needed.</p>
+<p id="guestPrivacy" class="smallNote">If you register, your nickname and consent will be sent to the EzyPlay administrator using Netlify Forms. Game progress stays in this browser. <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read the privacy notice</a>.</p>
+<label class="consent-row" for="guestConsent"><input id="guestConsent" type="checkbox" name="consent" value="yes" required><span>I agree to send my nickname to the EzyPlay administrator via Netlify Forms. I understand that registration is optional.</span></label>
+<p id="guestFormStatus" class="formStatus" role="status" aria-live="polite"></p><div class="row"><button id="guestSubmit" class="primary" type="submit" disabled>SUBMIT NICKNAME &amp; PLAY</button><button id="guestSkip" type="button">PLAY WITHOUT REGISTERING</button><button id="guestCancel" type="button">CANCEL</button></div>
 </form></div></section>
 <section class="screen" id="shopScreen"><div class="panel"><h2>FOOD FIGHT SHOP</h2><p class="sub">Mix and match any launcher with any food. Each item has its own look and personality.</p><div class="row"><div class="stat" id="shopCoins">Coins: 0</div><button id="shopBack">BACK</button></div><form id="redeemForm" class="adminForm"><label for="redeemCode">Reward code</label><input id="redeemCode" maxlength="32" autocapitalize="characters" spellcheck="false" required><button class="gold" type="submit">REDEEM CODE</button><p id="redeemStatus" class="formStatus" role="status"></p></form><h3 style="margin-top:18px;text-align:left">Choose your launcher</h3><div class="gridCards" id="rifleCards"></div><h3 style="text-align:left">Choose your food</h3><div class="gridCards" id="bulletCards"></div><h3 style="text-align:left">Choose your background</h3><div class="gridCards" id="backgroundCards"></div></div></section>
 
@@ -50,7 +52,7 @@ body[data-background=kitchen]{background:radial-gradient(ellipse at 15% 10%,#674
 
 <section class="screen" id="resultScreen"><div class="panel"><h2 id="resultTitle">LEVEL CLEARED</h2><div id="resultStars" class="stars hidden" aria-live="polite"></div><p class="sub" id="resultMessage">Mission complete.</p><div class="stats"><div class="stat" id="resultScore">Score: 0</div><div class="stat" id="resultCoins">Coins earned: 0</div></div><div class="row"><button id="resultHome">HOME</button><button id="retryButton">RETRY</button><button class="primary" id="nextButton">NEXT LEVEL</button></div></div></section>
 
-<section class="screen" id="adminScreen"><div class="panel"><h2>FOOD FIGHT ADMIN</h2><p class="sub">Prototype controls for local testing only.</p><div id="adminLoginArea"><label for="adminPasswordInput" style="display:block;text-align:left;margin:12px 0 6px">Admin password</label><input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter admin password" style="width:100%;padding:12px;border-radius:10px;border:1px solid #536987;background:#111722;color:#fff"><div class="row" style="margin-top:12px"><button class="primary" id="adminLoginButton">LOG IN</button><button id="adminBackButton">BACK</button></div></div><div id="adminControls" class="hidden"><div class="adminForm"><h3>Current local player</h3><p class="smallNote">This play session in this tab only. Players on other devices or tabs are not shown.</p><p id="activePlayerStatus" class="formStatus" role="status">No active player.</p><dl id="activePlayerDetails" class="hidden"><dt>Username</dt><dd id="activePlayerUsername"></dd><dt>Name</dt><dd id="activePlayerName"></dd></dl></div><div class="stat" id="anonymousModeStatus" style="margin:12px 0">Anonymous play: Enabled</div><div class="row"><button class="gold" id="toggleAnonymousButton">DISABLE ANONYMOUS PLAY</button><button id="adminLogoutButton">LOG OUT</button><button id="adminHomeButton">HOME</button></div><form id="itemForm" class="adminForm">
+<section class="screen" id="adminScreen"><div class="panel"><h2>FOOD FIGHT ADMIN</h2><p class="sub">Prototype controls for local testing only.</p><div id="adminLoginArea"><label for="adminPasswordInput" style="display:block;text-align:left;margin:12px 0 6px">Admin password</label><input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="Enter admin password" style="width:100%;padding:12px;border-radius:10px;border:1px solid #536987;background:#111722;color:#fff"><div class="row" style="margin-top:12px"><button class="primary" id="adminLoginButton">LOG IN</button><button id="adminBackButton">BACK</button></div></div><div id="adminControls" class="hidden"><div class="adminForm"><h3>Current local player</h3><p class="smallNote">This play session in this tab only. Players on other devices or tabs are not shown.</p><p id="activePlayerStatus" class="formStatus" role="status">No active player.</p><dl id="activePlayerDetails" class="hidden"><dt>Nickname</dt><dd id="activePlayerUsername"></dd><dt>Registration</dt><dd id="activePlayerRegistration"></dd></dl></div><div class="stat" id="anonymousModeStatus" style="margin:12px 0">Anonymous play: Enabled</div><div class="row"><button class="gold" id="toggleAnonymousButton">DISABLE ANONYMOUS PLAY</button><button id="adminLogoutButton">LOG OUT</button><button id="adminHomeButton">HOME</button></div><div class="adminForm" id="netlifyRegistrationAdmin"><h3>Guest registrations</h3><p class="smallNote">Open Netlify’s signed-in dashboard to view submissions. This local prototype password is not secure authentication and does not protect the stored registrations. Displaying them inside this panel would require an authenticated server-side API; this site does not fetch or display them.</p><a id="netlifyFormsDashboard" class="dashboard-link" href="https://app.netlify.com/projects/ezygame/forms" target="_blank" rel="noopener noreferrer">OPEN NETLIFY FORMS DASHBOARD</a><p class="smallNote">Choose ezyplay-guest-registration. Review weekly and delete entries within 30 days, or sooner when no longer needed. Deletion is manual in Netlify.</p></div><form id="itemForm" class="adminForm">
 <h3>Add a store item</h3>
 <label for="itemType">Item type</label><select id="itemType"><option value="blaster">Blaster / launcher</option><option value="food">Food projectile</option></select>
 <label for="itemName">Item name</label><input id="itemName" maxlength="48" required>
@@ -80,7 +82,7 @@ const ANON_SETTING_KEY='foodFightAnonymousPlayEnabled';
 let anonymousEnabled=true;
 try{anonymousEnabled=localStorage.getItem(ANON_SETTING_KEY)!=='false'}catch(e){}
 function anonymousPlayEnabled(){return anonymousEnabled}
-function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'EDIT PLAYER DETAILS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','dailyButton','missionsButton','achievementsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?'Playing as @'+guestProfile.username+'. Progress is saved only in this browser.':'Choose Play Anonymously to start. Your progress stays on this device.';}
+function updateGuestControls(){$('endGuestSession').classList.toggle('hidden',!guestActive);const enabled=anonymousPlayEnabled();const guestBtn=$('guestPlayButton');guestBtn.disabled=!enabled;guestBtn.textContent=enabled?(guestActive?'PLAYER OPTIONS':'PLAY ANONYMOUSLY'):'ANONYMOUS PLAY DISABLED';['endlessButton','puzzleButton','shopButton','levelsButton','dailyButton','missionsButton','achievementsButton','statisticsButton'].forEach(id=>$(id).disabled=!guestActive||!enabled);$('guestStatus').textContent=!enabled?'Anonymous play is disabled by the admin. Online account login is not connected in this prototype.':guestActive?(guestProfile.registered?'Playing as @'+guestProfile.username+'. Progress stays in this browser.':'Playing anonymously on this device. Progress stays in this browser.'):'Choose Play Anonymously to start. Your progress stays on this device.';}
 function updateAdminControls(){drawActivePlayer();const logged=adminAuthenticated;$('adminLoginArea').classList.toggle('hidden',logged);$('adminControls').classList.toggle('hidden',!logged);const enabled=anonymousPlayEnabled();$('anonymousModeStatus').textContent='Anonymous play: '+(enabled?'Enabled':'Disabled');$('toggleAnonymousButton').textContent=enabled?'DISABLE ANONYMOUS PLAY':'ENABLE ANONYMOUS PLAY';}
 let W=innerWidth,H=innerHeight,dpr=1,raf=0,last=0,state='home',mode='endless',introStart=0,gameStart=0;
 let score=0,speed=6,spawnTimer=0,bullet=null,blocks=[],wind=[],trails=[],shots=[],targets=[],crates=[],switches=[],barriers=[],particles=[];
@@ -475,25 +477,71 @@ function drawActivePlayer(){
  const active=guestActive&&guestProfile&&anonymousPlayEnabled();
  $('activePlayerStatus').textContent=active?'Active guest session':'No active player.';
  $('activePlayerDetails').classList.toggle('hidden',!active);
- $('activePlayerUsername').textContent=active?'@'+guestProfile.username:'';
- $('activePlayerName').textContent=active?guestProfile.firstName+' '+guestProfile.lastName:'';
+ $('activePlayerUsername').textContent=active?(guestProfile.registered?'@'+guestProfile.username:'Guest (not registered)'):'';
+ $('activePlayerRegistration').textContent=active?(registrationConfirmed?'Submitted this session':registrationAttempted?'Delivery not confirmed':'Not requested'):'';
 }
-function endGuestSession(){guestActive=false;guestProfile=null;$('guestForm').reset();$('guestFormStatus').textContent='';updateGuestControls();drawActivePlayer();}
+// Registration state is session-only. No IDs, nickname or consent are saved
+// in localStorage, cookies or game-progress records.
+let registrationPending=false,registrationAttempted=false,registrationConfirmed=false;
+let registrationController=null,guestFlowVersion=0;
+function updateRegistrationControls(){
+ $('guestUsername').disabled=registrationPending||registrationAttempted;
+ $('guestConsent').disabled=registrationPending||registrationAttempted;
+ $('guestSubmit').disabled=registrationPending||registrationAttempted||!$('guestConsent').checked||!/^[A-Za-z0-9_]{3,24}$/.test($('guestUsername').value.trim());
+ $('guestSubmit').textContent=registrationPending?'SUBMITTING…':registrationConfirmed?'NICKNAME SUBMITTED':'SUBMIT NICKNAME & PLAY';
+ $('guestSkip').disabled=registrationPending;$('guestCancel').disabled=registrationPending;
+ $('guestSkip').textContent=guestActive?'CONTINUE PLAYING':registrationAttempted?'PLAY WITHOUT ANOTHER SUBMISSION':'PLAY WITHOUT REGISTERING';
+ $('guestForm').setAttribute('aria-busy',String(registrationPending));
+}
+function startGuestSession(username=null){
+ if(!anonymousPlayEnabled())return;
+ guestProfile={username:username||'Guest',registered:!!username};guestActive=true;
+ $('guestForm').reset();updateRegistrationControls();updateGuestControls();drawActivePlayer();showScreen('homeScreen');
+}
+function endGuestSession(){
+ guestFlowVersion++;registrationController?.abort();registrationController=null;
+ registrationPending=false;registrationAttempted=false;registrationConfirmed=false;
+ guestActive=false;guestProfile=null;$('guestForm').reset();$('guestFormStatus').textContent='';
+ updateRegistrationControls();updateGuestControls();drawActivePlayer();
+}
 $('guestPlayButton').addEventListener('click',()=>{
  if(!anonymousPlayEnabled()){toast('Anonymous play is disabled');updateGuestControls();return}
- $('guestForm').reset();$('guestFormStatus').textContent='';
- if(guestProfile){$('guestFirstName').value=guestProfile.firstName;$('guestLastName').value=guestProfile.lastName;$('guestUsername').value=guestProfile.username}
- showScreen('guestScreen');$('guestFirstName').focus();
+ $('guestForm').reset();
+ $('guestFormStatus').textContent=registrationConfirmed?'Your nickname was already submitted this session. Continue playing without sending it again.':registrationAttempted?'An earlier delivery could not be confirmed. To avoid duplicates, no further registration will be sent in this session. You can still play.':'';
+ updateRegistrationControls();showScreen('guestScreen');
+ if(!$('guestUsername').disabled)$('guestUsername').focus();
 });
-$('guestForm').addEventListener('submit',e=>{
+for(const event of ['input','change'])$('guestForm').addEventListener(event,updateRegistrationControls);
+$('guestForm').addEventListener('submit',async e=>{
  e.preventDefault();
+ if(registrationPending||registrationAttempted)return;
  if(!anonymousPlayEnabled()){endGuestSession();showScreen('homeScreen');return}
- const firstName=$('guestFirstName').value.trim(),lastName=$('guestLastName').value.trim(),username=$('guestUsername').value.trim();
- if(!firstName||!lastName||firstName.length>40||lastName.length>40){$('guestFormStatus').textContent='Please enter your first and last name (up to 40 characters each).';return}
- if(!/^[A-Za-z0-9_]{3,24}$/.test(username)){$('guestFormStatus').textContent='Choose a username with 3–24 letters, numbers or underscores.';return}
- guestProfile={firstName,lastName,username};guestActive=true;updateGuestControls();drawActivePlayer();showScreen('homeScreen');toast('Ready to play, @'+username+'!');
+ const username=$('guestUsername').value.trim();
+ if(!$('guestConsent').checked){$('guestFormStatus').textContent='Consent is needed to send a nickname. You can play without registering.';return}
+ if(!/^[A-Za-z0-9_]{3,24}$/.test(username)){$('guestFormStatus').textContent='Choose a nickname with 3–24 letters, numbers or underscores.';return}
+ registrationPending=true;registrationAttempted=true;updateRegistrationControls();
+ $('guestFormStatus').textContent='Submitting your nickname…';
+ const version=guestFlowVersion,controller=new AbortController();registrationController=controller;
+ const deadline=setTimeout(()=>controller.abort(),8000);
+ try{
+  const body=new URLSearchParams({'form-name':'ezyplay-guest-registration',nickname:username,consent:'yes','bot-field':$('guestForm').elements.namedItem('bot-field').value});
+  const response=await fetch($('guestForm').action,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal});
+  if(!response.ok)throw Error('Registration not confirmed');
+  if(version!==guestFlowVersion||!anonymousPlayEnabled())return;
+  registrationConfirmed=true;startGuestSession(username);toast('Nickname submitted. Ready to play, @'+username+'!');
+ }catch(error){
+  if(version===guestFlowVersion)$('guestFormStatus').textContent='We could not confirm delivery. We will not retry automatically or send another registration in this session. You can still play without another submission.';
+ }finally{
+  clearTimeout(deadline);
+  if(version===guestFlowVersion){registrationPending=false;registrationController=null;updateRegistrationControls()}
+ }
 });
-$('guestCancel').addEventListener('click',()=>{$('guestForm').reset();showScreen('homeScreen')});
+$('guestSkip').addEventListener('click',()=>{
+ if(registrationPending)return;
+ $('guestForm').reset();$('guestFormStatus').textContent='';
+ if(guestActive){updateRegistrationControls();showScreen('homeScreen')}else startGuestSession();
+});
+$('guestCancel').addEventListener('click',()=>{if(registrationPending)return;$('guestForm').reset();$('guestFormStatus').textContent='';updateRegistrationControls();showScreen('homeScreen')});
 $('endGuestSession').addEventListener('click',()=>{endGuestSession();showScreen('homeScreen');toast('Guest session ended')});
 $('adminOpenButton').addEventListener('click',()=>{adminAuthenticated=false;$('adminPasswordInput').value='';updateAdminControls();showScreen('adminScreen')});
 $('adminBackButton').addEventListener('click',()=>showScreen('homeScreen'));
